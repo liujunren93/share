@@ -2,7 +2,8 @@ package client
 
 import (
 	"context"
-	"github.com/shareChina/share/client/selector"
+	"github.com/liujunren93/share/client/selector"
+	"github.com/liujunren93/share/log"
 	"google.golang.org/grpc"
 )
 
@@ -13,8 +14,8 @@ type Client struct {
 }
 
 func NewClient() *Client {
-	var c  Client
-	c.options=&DefaultOptions
+	var c Client
+	c.options = &DefaultOptions
 	return &c
 }
 
@@ -32,7 +33,12 @@ func (c *Client) Init(opts ...option) {
 func (c *Client) Client(serverName string) (*grpc.ClientConn, error) {
 	service, err := c.options.registry.GetService(serverName)
 	if err != nil {
+		log.Logger.Error(err)
 		return nil, err
+	}
+	if len(service) == 0 {
+		log.Logger.Error("service not found")
+		return nil, nil
 	}
 	round := selector.Round(service)
 	s := round()

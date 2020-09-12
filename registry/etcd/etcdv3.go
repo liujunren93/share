@@ -6,8 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/coreos/etcd/clientv3"
-	"github.com/shareChina/share/log"
-	"github.com/shareChina/share/registry"
+	"github.com/liujunren93/share/log"
+	"github.com/liujunren93/share/registry"
 	"strings"
 	"time"
 )

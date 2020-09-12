@@ -1,8 +1,8 @@
 package selector
 
 import (
-	"github.com/shareChina/share/registry"
-	"github.com/shareChina/share/utils"
+	"github.com/liujunren93/share/registry"
+	"github.com/liujunren93/share/utils"
 )
 
 type Next func() string

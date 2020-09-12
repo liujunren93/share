@@ -2,9 +2,9 @@ package server
 
 import (
 	"fmt"
-	"github.com/shareChina/share/log"
-	"github.com/shareChina/share/registry"
-	"github.com/shareChina/share/utils"
+	"github.com/liujunren93/share/log"
+	"github.com/liujunren93/share/registry"
+	"github.com/liujunren93/share/utils"
 	"google.golang.org/grpc"
 	"net"
 	"os"

@@ -1,4 +1,4 @@
-module github.com/shareChina/share
+module github.com/liujunren93/share
 
 go 1.14
 

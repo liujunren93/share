@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"github.com/shareChina/share/example/proto"
-	"github.com/shareChina/share/registry"
-	"github.com/shareChina/share/registry/etcd"
-	"github.com/shareChina/share/server"
+	"github.com/liujunren93/share/example/proto"
+	"github.com/liujunren93/share/registry"
+	"github.com/liujunren93/share/registry/etcd"
+	"github.com/liujunren93/share/server"
 )
 
 type hello struct {

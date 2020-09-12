@@ -2,8 +2,8 @@ package client
 
 import (
 	"context"
-	"github.com/shareChina/share/client/selector"
-	"github.com/shareChina/share/registry"
+	"github.com/liujunren93/share/client/selector"
+	"github.com/liujunren93/share/registry"
 	"google.golang.org/grpc"
 )
 

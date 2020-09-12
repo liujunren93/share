@@ -3,10 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/shareChina/share/client"
-	"github.com/shareChina/share/example/proto"
-	"github.com/shareChina/share/registry"
-	"github.com/shareChina/share/registry/etcd"
+	"github.com/liujunren93/share/client"
+	"github.com/liujunren93/share/example/proto"
+	"github.com/liujunren93/share/registry"
+	"github.com/liujunren93/share/registry/etcd"
 )
 
 func main() {
