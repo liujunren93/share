@@ -76,7 +76,7 @@ func (g *grpcServer) Registry(reg registry.Registry) error {
 	return reg.Registry(&ser)
 }
 
-func (g *grpcServer) Server() *grpc.Server {
+func (g *grpcServer) Server()interface{} {
 	return g.srv
 }
 

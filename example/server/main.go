@@ -6,6 +6,7 @@ import (
 	"github.com/liujunren93/share/registry"
 	"github.com/liujunren93/share/registry/etcd"
 	"github.com/liujunren93/share/server"
+	"google.golang.org/grpc"
 )
 
 type hello struct {
@@ -30,7 +31,7 @@ func main() {
 	r := etcd.NewRegistry()
 	r.Init(registry.WithAddrs("127.0.0.1:2379"))
 	grpcServer.Registry(r)
-	proto.RegisterHelloWorldServer(grpcServer.Server(), new(hello))
+	proto.RegisterHelloWorldServer(grpcServer.Server().(*grpc.Server), new(hello))
 
 	grpcServer.Run()
 }
