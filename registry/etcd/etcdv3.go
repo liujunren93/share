@@ -1,5 +1,4 @@
 package etcd
-
 import (
 	"context"
 	"encoding/json"
@@ -53,7 +52,7 @@ func (e *etcdRegistry) Registry(service *registry.Service, options ...registry.O
 	if err != nil {
 		return err
 	}
-	lease.KeepAlive(todo, grant.ID)
+	lease.KeepAliveOnce(todo, grant.ID)
 	_, err = e.client.Put(context.TODO(), RegisterPath(e.options.Prefix, service), encode(service), clientv3.WithLease(grant.ID))
 	fmt.Printf("[share] Registering on [etcd]:%s  \n", RegisterPath(e.options.Prefix, service))
 	fmt.Printf("[share] Registering name: %s  \n",service.Name )

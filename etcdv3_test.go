@@ -3,10 +3,10 @@ package share
 import (
 	"context"
 	"fmt"
-	"github.com/shareChina/share/log"
-	"github.com/shareChina/share/registry"
-	"github.com/shareChina/share/registry/etcd"
-	"github.com/shareChina/share/utils"
+	"github.com/liujunren93/share/log"
+	"github.com/liujunren93/share/registry"
+	"github.com/liujunren93/share/registry/etcd"
+	"github.com/liujunren93/share/utils"
 	"testing"
 	"time"
 )
