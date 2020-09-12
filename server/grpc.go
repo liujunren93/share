@@ -14,7 +14,7 @@ import (
 
 type maxMsgSizeKey struct{}
 
-type Option func(*Options)
+
 
 var (
 	// DefaultMaxMsgSize define maximum message size that server can send
