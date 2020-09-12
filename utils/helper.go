@@ -8,7 +8,7 @@ import (
 )
 
 func GetUuidV3(name string) string {
-	v1 := uuid.NewV4()
+	v1,_ := uuid.NewV4()
 	variant := uuid.NewV3(v1, name)
 	//all := strings.ReplaceAll(variant.String(), "-", "")
 	return variant.String()
