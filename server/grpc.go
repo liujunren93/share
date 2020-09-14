@@ -50,13 +50,14 @@ func (g *grpcServer) Init(options ...Option) {
 	for _, o := range options {
 		o(g.options)
 	}
-
-	listen, err := net.Listen("tcp",":3333")
-	if err != nil {
-		log.Logger.Panic(err)
+	if g.listener == nil {
+		listen, err := net.Listen("tcp", g.options.Address)
+		if err != nil {
+			log.Logger.Panic(err)
+		}
+		g.options.Address = listen.Addr().String()
+		g.listener = listen
 	}
-	g.options.Address = listen.Addr().String()
-	g.listener = listen
 	gopts := []grpc.ServerOption{
 		grpc.MaxRecvMsgSize(g.getMaxMsgSize()),
 		grpc.MaxSendMsgSize(g.getMaxMsgSize()),
