@@ -10,11 +10,12 @@ type address struct {
 	IsDefault bool
 }
 type Options struct {
-	Name         string
-	Address      address
-	Namespace    string
-	Version      string
-	Ctx          context.Context
+	Name           string
+	Address        address
+	Namespace      string
+	Version        string
+	Ctx            context.Context
+	GrpcOpts       []grpc.ServerOption
 	HandleWrappers []grpc.UnaryServerInterceptor
 }
 
@@ -58,5 +59,11 @@ func WithCtx(ctx context.Context) Option {
 func WithHdlrWrappers(wrapper ...grpc.UnaryServerInterceptor) Option {
 	return func(options *Options) {
 		options.HandleWrappers = wrapper
+	}
+}
+
+func WithGrpcOpts(option ...grpc.ServerOption) Option {
+	return func(options *Options) {
+		options.GrpcOpts = option
 	}
 }

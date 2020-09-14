@@ -54,7 +54,7 @@ func (g *grpcServer) Init(options ...Option) {
 	}
 	it := UnaryServer(g.options.HandleWrappers...)
 	gopts = append(gopts, it)
-
+	gopts = append(gopts, g.options.GrpcOpts...)
 
 	g.srv = grpc.NewServer(gopts...)
 }
