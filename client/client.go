@@ -6,6 +6,7 @@ import (
 	"github.com/liujunren93/share/log"
 	"github.com/liujunren93/share/server"
 	"google.golang.org/grpc"
+	"time"
 )
 
 type option func(*options)
@@ -17,6 +18,8 @@ type Client struct {
 func NewClient() *Client {
 	var c Client
 	c.options = &DefaultOptions
+	timeout, _ := context.WithTimeout(c.options.ctx, time.Second*2)
+	c.options.ctx = timeout
 	return &c
 }
 
@@ -24,7 +27,6 @@ func (c *Client) Init(opts ...option) {
 	for _, o := range opts {
 		o(c.options)
 	}
-
 	if c.options.ctx == nil {
 		c.options.ctx = context.TODO()
 	}

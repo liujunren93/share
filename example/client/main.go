@@ -19,10 +19,10 @@ func main() {
 	r.Init(registry.WithAddrs("127.0.0.1:2379"))
 	newClient := client.NewClient()
 	newClient.Init(client.WithRegistry(r),client.WithCallWrappers(opentrace.ClientGrpcCallWrap(newJaeger)))
-	conn, err := newClient.Client("app")
+	conn, err := newClient.Client("go.micro.share.service.app")
 	mathClient := proto.NewHelloWorldClient(conn)
 	add, err := mathClient.Say(context.TODO(), &proto.Req{
-
+		Name: "adsa",
 	})
 	fmt.Println(err)
 	select {

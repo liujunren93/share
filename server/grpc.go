@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 )
 
@@ -21,8 +22,9 @@ var (
 )
 
 type grpcServer struct {
-	srv     *grpc.Server
-	options *Options
+	srv      *grpc.Server
+	options  *Options
+	listener net.Listener
 }
 
 func (g *grpcServer) getMaxMsgSize() int {
@@ -48,10 +50,18 @@ func (g *grpcServer) Init(options ...Option) {
 	for _, o := range options {
 		o(g.options)
 	}
+
+	listen, err := net.Listen("tcp", g.options.Address)
+	if err != nil {
+		log.Logger.Panic(err)
+	}
+	g.options.Address = listen.Addr().String()
+	g.listener = listen
 	gopts := []grpc.ServerOption{
 		grpc.MaxRecvMsgSize(g.getMaxMsgSize()),
 		grpc.MaxSendMsgSize(g.getMaxMsgSize()),
 	}
+
 	it := UnaryServer(g.options.HandleWrappers...)
 	gopts = append(gopts, it)
 	gopts = append(gopts, g.options.GrpcOpts...)
@@ -60,17 +70,20 @@ func (g *grpcServer) Init(options ...Option) {
 }
 
 func (g *grpcServer) Registry(reg registry.Registry) error {
+
 	if g.options.Name == "" {
 		log.Logger.Panicln("service name cannot be empty")
 		//return errors.New("service name cannot be empty")
 	}
+	ip, _ := utils.GetIntranetIp()
+	endpoint := strings.Replace(g.options.Address, "[::]", ip.String(), 1)
+
 	ser := registry.Service{
 		Name:     g.options.Name,
 		Version:  g.options.Version,
 		Node:     utils.GetUuidV3(reg.GetPrefix()),
-		Endpoint: g.options.Address.addr,
+		Endpoint: endpoint,
 	}
-
 	return reg.Registry(&ser)
 }
 
@@ -79,19 +92,15 @@ func (g *grpcServer) Server() interface{} {
 }
 
 func (g *grpcServer) Run() error {
-	listen, err := net.Listen("tcp", g.options.Address.addr)
-	if err != nil {
-		log.Logger.Panic(err)
-	}
 
 	go func() {
-		if err := g.srv.Serve(listen); err != nil {
+		if err := g.srv.Serve(g.listener); err != nil {
 			log.Logger.Errorf("[share] Server [grpc] error:%s \n", err)
 			os.Exit(0)
 		}
 
 	}()
-	fmt.Printf("[share] Server [grpc] Listening on %s \n", listen.Addr().String())
+	fmt.Printf("[share] Server [grpc] Listening on %s \n", g.listener.Addr().String())
 	ch := make(chan os.Signal, 1)
 
 	signal.Notify(ch, Shutdown()...)

@@ -11,7 +11,7 @@ type address struct {
 }
 type Options struct {
 	Name           string
-	Address        address
+	Address        string
 	Namespace      string
 	Version        string
 	Ctx            context.Context
@@ -20,10 +20,7 @@ type Options struct {
 }
 
 var defaultOptions = Options{
-	Address: address{
-		addr:      ":0",
-		IsDefault: true,
-	},
+	Address:   ":0",
 	Namespace: "share",
 	Version:   "latest",
 	Ctx:       context.TODO(),
@@ -37,10 +34,7 @@ func WithName(name string) Option {
 
 func WithAddress(addr string) Option {
 	return func(options *Options) {
-		options.Address = address{
-			addr:      addr,
-			IsDefault: false,
-		}
+		options.Address = addr
 	}
 }
 

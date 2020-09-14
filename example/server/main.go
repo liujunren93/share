@@ -31,7 +31,7 @@ func main() {
 	opentracing.SetGlobalTracer(newJaeger)
 	grpcServer := server.NewGrpcServer(
 		server.WithName("app"),
-		server.WithAddress(":2222"),
+		//server.WithAddress("127.0.0.1:2222"),
 		server.WithHdlrWrappers(validator.NewHandlerWrapper(),opentrace.ServerGrpcWrap(newJaeger)),
 	)
 
