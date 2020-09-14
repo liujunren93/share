@@ -52,14 +52,16 @@ func (e *etcdRegistry) Registry(service *registry.Service, options ...registry.O
 	if err != nil {
 		return err
 	}
-	lease.KeepAliveOnce(todo, grant.ID)
+	lease.KeepAlive(todo, grant.ID)
 	_, err = e.client.Put(context.TODO(), RegisterPath(e.options.Prefix, service), encode(service), clientv3.WithLease(grant.ID))
+
 	fmt.Printf("[share] Registering on [etcd]:%s  \n", RegisterPath(e.options.Prefix, service))
 	fmt.Printf("[share] Registering name: %s  \n",service.Name )
 	return err
 }
 
 func (e *etcdRegistry) GetService(serverName string, option ...registry.Option) ([]*registry.Service, error) {
+	fmt.Println(GetServicePath(e.options.Prefix, serverName))
 	get, err := e.client.Get(context.TODO(), GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithSerializable())
 	if err != nil {
 		return nil, err
