@@ -8,18 +8,18 @@ import (
 )
 
 type options struct {
-	name       string
-	callOption []grpc.DialOption
-	ctx        context.Context
-	Selector   func(s []*registry.Service) selector.Next
-	registry   registry.Registry
+	name         string
+	callWrappers []grpc.UnaryClientInterceptor
+	grpcOpts     []grpc.DialOption
+	ctx          context.Context
+	Selector     func(s []*registry.Service) selector.Next
+	registry     registry.Registry
 }
 
-var DefaultOptions =options{
-	callOption: []grpc.DialOption{grpc.WithInsecure() },
-	ctx:        context.TODO(),
-	Selector:   selector.Round,
-
+var DefaultOptions = options{
+	grpcOpts: []grpc.DialOption{grpc.WithInsecure()},
+	ctx:      context.TODO(),
+	Selector: selector.Round,
 }
 
 func WithName(name string) option {
@@ -28,10 +28,15 @@ func WithName(name string) option {
 	}
 }
 
-func WithCallOption(ops ...grpc.DialOption) option {
-	ops = append(ops,grpc.WithInsecure()  )
+func WithGrpcOpts(ops ...grpc.DialOption) option {
+	ops = append(ops, grpc.WithInsecure())
 	return func(o *options) {
-		o.callOption = ops
+		o.grpcOpts = ops
+	}
+}
+func WithCallWrappers(ops ...grpc.UnaryClientInterceptor) option {
+	return func(o *options) {
+		o.callWrappers = ops
 	}
 }
 

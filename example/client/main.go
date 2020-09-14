@@ -13,17 +13,18 @@ import (
 )
 
 func main() {
-	newJaeger, _, err := example.NewJaeger("aaaa", "127.0.0.1:6831")
+	newJaeger, _, err := example.NewJaeger("client", "127.0.0.1:6831")
 	opentracing.SetGlobalTracer(newJaeger)
 	r := etcd.NewRegistry()
 	r.Init(registry.WithAddrs("127.0.0.1:2379"))
 	newClient := client.NewClient()
-	newClient.Init(client.WithRegistry(r),client.WithCallOption(opentrace.ClientGrpcCallWrap(newJaeger)))
+	newClient.Init(client.WithRegistry(r),client.WithCallWrappers(opentrace.ClientGrpcCallWrap(newJaeger)))
 	conn, err := newClient.Client("app")
 	mathClient := proto.NewHelloWorldClient(conn)
 	add, err := mathClient.Say(context.TODO(), &proto.Req{
-		Name: "test",
+
 	})
+	fmt.Println(err)
 	select {
 
 	}

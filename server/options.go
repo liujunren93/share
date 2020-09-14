@@ -15,7 +15,7 @@ type Options struct {
 	Namespace    string
 	Version      string
 	Ctx          context.Context
-	HdlrWrappers []grpc.ServerOption
+	HandleWrappers []grpc.UnaryServerInterceptor
 }
 
 var defaultOptions = Options{
@@ -55,8 +55,8 @@ func WithCtx(ctx context.Context) Option {
 	}
 }
 
-func WithHdlrWrappers(wrapper ...grpc.ServerOption) Option {
+func WithHdlrWrappers(wrapper ...grpc.UnaryServerInterceptor) Option {
 	return func(options *Options) {
-		options.HdlrWrappers = wrapper
+		options.HandleWrappers = wrapper
 	}
 }

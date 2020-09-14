@@ -14,8 +14,6 @@ import (
 
 type maxMsgSizeKey struct{}
 
-
-
 var (
 	// DefaultMaxMsgSize define maximum message size that server can send
 	// or receive.  Default value is 4MB.
@@ -54,10 +52,10 @@ func (g *grpcServer) Init(options ...Option) {
 		grpc.MaxRecvMsgSize(g.getMaxMsgSize()),
 		grpc.MaxSendMsgSize(g.getMaxMsgSize()),
 	}
+	it := UnaryServer(g.options.HandleWrappers...)
+	gopts = append(gopts, it)
 
-	for _, wrapper := range g.options.HdlrWrappers {
-		gopts = append(gopts, wrapper)
-	}
+
 	g.srv = grpc.NewServer(gopts...)
 }
 
@@ -76,7 +74,7 @@ func (g *grpcServer) Registry(reg registry.Registry) error {
 	return reg.Registry(&ser)
 }
 
-func (g *grpcServer) Server()interface{} {
+func (g *grpcServer) Server() interface{} {
 	return g.srv
 }
 
@@ -101,7 +99,7 @@ func (g *grpcServer) Run() error {
 	select {
 	// wait on kill signal
 	case <-ch:
-	// wait on context cancel
+		// wait on context cancel
 
 	}
 	return nil

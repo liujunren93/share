@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/liujunren93/share/client/selector"
 	"github.com/liujunren93/share/log"
+	"github.com/liujunren93/share/server"
 	"google.golang.org/grpc"
 )
 
@@ -42,6 +43,6 @@ func (c *Client) Client(serverName string) (*grpc.ClientConn, error) {
 	}
 	round := selector.Round(service)
 	s := round()
-
-	return grpc.DialContext(c.options.ctx, s, c.options.callOption...)
+	c.options.grpcOpts = append(c.options.grpcOpts, server.UnaryClient(c.options.callWrappers...))
+	return grpc.DialContext(c.options.ctx, s, c.options.grpcOpts...)
 }

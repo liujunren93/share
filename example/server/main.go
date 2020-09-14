@@ -7,6 +7,7 @@ import (
 	"github.com/liujunren93/share/example"
 	"github.com/liujunren93/share/example/proto"
 	"github.com/liujunren93/share/plugins/opentrace"
+	"github.com/liujunren93/share/plugins/validator"
 	"github.com/liujunren93/share/registry"
 	"github.com/liujunren93/share/registry/etcd"
 	"github.com/liujunren93/share/server"
@@ -25,13 +26,13 @@ func (h hello) Say(ctx context.Context, req *proto.Req) (*proto.Res, error) {
 }
 
 func main() {
-	newJaeger, _, err := example.NewJaeger("appaa", "127.0.0.1:6831")
+	newJaeger, _, err := example.NewJaeger("server", "127.0.0.1:6831")
 	fmt.Println(err)
 	opentracing.SetGlobalTracer(newJaeger)
 	grpcServer := server.NewGrpcServer(
 		server.WithName("app"),
 		server.WithAddress(":2222"),
-		server.WithHdlrWrappers(opentrace.ServerGrpcWrap(newJaeger)),
+		server.WithHdlrWrappers(validator.NewHandlerWrapper(),opentrace.ServerGrpcWrap(newJaeger)),
 	)
 
 	r := etcd.NewRegistry()

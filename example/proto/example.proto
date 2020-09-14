@@ -1,9 +1,9 @@
 syntax = "proto3";
 package proto;
 option go_package = "./proto;proto";
-
+import "validate/validate.proto";
 message req {
-  string  name = 1;
+  string  name = 1[(validate.rules).string.min_bytes = 1];
 }
 message res {
   string  msg = 1;
