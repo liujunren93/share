@@ -50,8 +50,8 @@ func (g *grpcServer) Init(options ...Option) {
 	for _, o := range options {
 		o(g.options)
 	}
-fmt.Println(g.options.Address)
-	listen, err := net.Listen("tcp", g.options.Address)
+
+	listen, err := net.Listen("tcp",":3333")
 	if err != nil {
 		log.Logger.Panic(err)
 	}
