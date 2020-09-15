@@ -1,7 +1,7 @@
 package status
 
 type status interface {
-	Code() int32
-	Msg() string
+	GetCode() int32
+	GetMsg() string
 }
 

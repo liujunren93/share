@@ -6,11 +6,11 @@ type Error struct {
 	Data interface{}
 }
 
-func (e Error) Code() int32 {
+func (e Error) GetCode() int32 {
 	return e.code
 }
 
-func (e Error) Msg() string {
+func (e Error) GetMsg() string {
 	return e.msg
 }
 
