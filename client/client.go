@@ -49,5 +49,8 @@ func (c *Client) Client(serverName string) (*grpc.ClientConn, *serrors.Error) {
 	s := round()
 	c.options.grpcOpts = append(c.options.grpcOpts, server.UnaryClient(c.options.callWrappers...))
 	dialContext, err := grpc.DialContext(c.options.ctx, s, c.options.grpcOpts...)
+	if err != nil {
+		log.Logger.Errorf("[share]service:%v",err)
+	}
 	return dialContext, serrors.InternalServerError(err, nil)
 }
