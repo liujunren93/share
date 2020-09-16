@@ -16,6 +16,7 @@ func (e Error) Error() string {
 }
 
 func New(Code int32, msg string, data interface{}) *Error {
+
 	return &Error{
 		code: Code,
 		msg:  msg,
@@ -25,6 +26,9 @@ func New(Code int32, msg string, data interface{}) *Error {
 }
 
 func BadRequest(err error, data interface{}) *Error {
+	if err==nil {
+		return nil
+	}
 	return &Error{
 		code: 400,
 		msg:  err.Error(),
@@ -34,6 +38,9 @@ func BadRequest(err error, data interface{}) *Error {
 
 // Unauthorized generates a 401 Error.
 func Unauthorized(err error, data interface{}) *Error {
+	if err==nil {
+		return nil
+	}
 	return &Error{
 		code: 401,
 		msg:  err.Error(),
@@ -43,6 +50,9 @@ func Unauthorized(err error, data interface{}) *Error {
 
 // Forbidden generates a 403 Error.
 func Forbidden(err error, data interface{}) *Error {
+	if err==nil {
+		return nil
+	}
 	return &Error{
 		code: 403,
 		msg:  err.Error(),
@@ -52,6 +62,9 @@ func Forbidden(err error, data interface{}) *Error {
 
 // NotFound generates a 404 Error.
 func NotFound(err error, data interface{}) *Error {
+	if err==nil {
+		return nil
+	}
 	return &Error{
 		code: 404,
 		msg:  err.Error(),
@@ -61,6 +74,9 @@ func NotFound(err error, data interface{}) *Error {
 
 // MethodNotAllowed generates a 405 Error.
 func MethodNotAllowed(err error, data interface{}) *Error {
+	if err==nil {
+		return nil
+	}
 	return &Error{
 		code: 405,
 		msg:  err.Error(),
@@ -70,6 +86,9 @@ func MethodNotAllowed(err error, data interface{}) *Error {
 
 // Timeout generates a 408 Error.
 func Timeout(err error, data interface{}) *Error {
+	if err==nil {
+		return nil
+	}
 	return &Error{
 		code: 408,
 		msg:  err.Error(),
@@ -79,6 +98,9 @@ func Timeout(err error, data interface{}) *Error {
 
 // Conflict generates a 409 Error.
 func Conflict(err error, data interface{}) *Error {
+	if err==nil {
+		return nil
+	}
 	return &Error{
 		code: 409,
 		msg:  err.Error(),
@@ -88,9 +110,13 @@ func Conflict(err error, data interface{}) *Error {
 
 // InternalServerError generates a 500 Error.
 func InternalServerError(err error, data interface{}) *Error {
+	if err==nil {
+		return nil
+	}
 	return &Error{
 		code: 500,
 		msg:  err.Error(),
 		Data: data,
 	}
 }
+
