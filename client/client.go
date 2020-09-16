@@ -51,6 +51,7 @@ func (c *Client) Client(serverName string) (*grpc.ClientConn, error) {
 	dialContext, err := grpc.DialContext(c.options.ctx, s, c.options.grpcOpts...)
 	if err != nil {
 		log.Logger.Errorf("[share]service:%v",err)
+		return nil,serrors.InternalServerError(err)
 	}
-	return dialContext, serrors.InternalServerError(err)
+	return dialContext, nil
 }
