@@ -15,7 +15,7 @@ func NewHandlerWrapper() grpc.UnaryServerInterceptor {
 		if v, ok := req.(Validator); ok {
 			if err := v.Validate(); err != nil {
 
-				return nil, serrors.BadRequest(err, nil)
+				return nil, serrors.BadRequest(err)
 			}
 		}
 		return handler(ctx, req)

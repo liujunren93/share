@@ -1,122 +1,75 @@
 package serrors
 
+import (
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
 
-type Error struct {
-	code int32
-	msg  string
-	Data interface{}
-}
-
-func (e Error) Code() int32 {
-	return e.code
-}
-
-func (e Error) Error() string {
-	return e.msg
-}
-
-func New(Code int32, msg string, data interface{}) *Error {
-
-	return &Error{
-		code: Code,
-		msg:  msg,
-		Data: data,
-	}
+func New(code int32, msg string) error {
+	return status.New(codes.Code(code), msg).Err()
 
 }
 
-func BadRequest(err error, data interface{}) *Error {
-	if err==nil {
+func BadRequest(err error) error {
+	if err == nil {
 		return nil
 	}
-	return &Error{
-		code: 400,
-		msg:  err.Error(),
-		Data: data,
-	}
+	return status.New(codes.Code(400), err.Error()).Err()
+
 }
 
 // Unauthorized generates a 401 Error.
-func Unauthorized(err error, data interface{}) *Error {
-	if err==nil {
+func Unauthorized(err error) error {
+	if err == nil {
 		return nil
 	}
-	return &Error{
-		code: 401,
-		msg:  err.Error(),
-		Data: data,
-	}
+	return status.New(codes.Code(401), err.Error()).Err()
 }
 
 // Forbidden generates a 403 Error.
-func Forbidden(err error, data interface{}) *Error {
-	if err==nil {
+func Forbidden(err error) error {
+	if err == nil {
 		return nil
 	}
-	return &Error{
-		code: 403,
-		msg:  err.Error(),
-		Data: data,
-	}
+	return status.New(codes.Code(403), err.Error()).Err()
 }
 
 // NotFound generates a 404 Error.
-func NotFound(err error, data interface{}) *Error {
-	if err==nil {
+func NotFound(err error) error {
+	if err == nil {
 		return nil
 	}
-	return &Error{
-		code: 404,
-		msg:  err.Error(),
-		Data: data,
-	}
+	return status.New(codes.Code(404), err.Error()).Err()
 }
 
 // MethodNotAllowed generates a 405 Error.
-func MethodNotAllowed(err error, data interface{}) *Error {
-	if err==nil {
+func MethodNotAllowed(err error) error {
+	if err == nil {
 		return nil
 	}
-	return &Error{
-		code: 405,
-		msg:  err.Error(),
-		Data: data,
-	}
+	return status.New(codes.Code(405), err.Error()).Err()
 }
 
 // Timeout generates a 408 Error.
-func Timeout(err error, data interface{}) *Error {
-	if err==nil {
+func Timeout(err error) error {
+	if err == nil {
 		return nil
 	}
-	return &Error{
-		code: 408,
-		msg:  err.Error(),
-		Data: data,
-	}
+	return status.New(codes.Code(408), err.Error()).Err()
 }
 
 // Conflict generates a 409 Error.
-func Conflict(err error, data interface{}) *Error {
-	if err==nil {
+func Conflict(err error) error {
+	if err == nil {
 		return nil
 	}
-	return &Error{
-		code: 409,
-		msg:  err.Error(),
-		Data: data,
-	}
+	return status.New(codes.Code(409), err.Error()).Err()
 }
 
 // InternalServerError generates a 500 Error.
-func InternalServerError(err error, data interface{}) *Error {
-	if err==nil {
+func InternalServerError(err error) error {
+	if err == nil {
 		return nil
 	}
-	return &Error{
-		code: 500,
-		msg:  err.Error(),
-		Data: data,
-	}
+	return status.New(codes.Code(500), err.Error()).Err()
 }
-

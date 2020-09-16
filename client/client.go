@@ -35,15 +35,15 @@ func (c *Client) Init(opts ...option) {
 
 }
 
-func (c *Client) Client(serverName string) (*grpc.ClientConn, *serrors.Error) {
+func (c *Client) Client(serverName string) (*grpc.ClientConn, error) {
 	service, err := c.options.registry.GetService(serverName)
 	if err != nil {
 		log.Logger.Error(err)
-		return nil, serrors.NotFound(err, nil)
+		return nil, serrors.NotFound(err)
 	}
 	if len(service) == 0 {
 		log.Logger.Errorf("[share]service:%s not found",serverName)
-		return nil, serrors.NotFound(fmt.Errorf("[share]service:%s not found",serverName), nil)
+		return nil, serrors.NotFound(fmt.Errorf("[share]service:%s not found",serverName))
 	}
 	round := selector.Round(service)
 	s := round()
@@ -52,5 +52,5 @@ func (c *Client) Client(serverName string) (*grpc.ClientConn, *serrors.Error) {
 	if err != nil {
 		log.Logger.Errorf("[share]service:%v",err)
 	}
-	return dialContext, serrors.InternalServerError(err, nil)
+	return dialContext, serrors.InternalServerError(err)
 }

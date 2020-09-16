@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/liujunren93/share/example"
 	"github.com/liujunren93/share/example/proto"
@@ -22,17 +21,17 @@ func (h hello) Say(ctx context.Context, req *proto.Req) (*proto.Res, error) {
 	//panic("sdsads")
 	var res proto.Res
 	res.Msg = req.Name + ":hello world"
-	return &res, errors.New("sdsads")
+	return &res, nil
 }
 
 func main() {
-	newJaeger, _, err := example.NewJaeger("server", "127.0.0.1:6831")
+	newJaeger, _, err := example.NewJaeger("app", "127.0.0.1:6831")
 	fmt.Println(err)
 	opentracing.SetGlobalTracer(newJaeger)
 	grpcServer := server.NewGrpcServer(
 		server.WithName("app"),
 		//server.WithAddress("127.0.0.1:2222"),
-		server.WithHdlrWrappers(validator.NewHandlerWrapper(),opentrace.ServerGrpcWrap(newJaeger)),
+		server.WithHdlrWrappers(validator.NewHandlerWrapper(), opentrace.ServerGrpcWrap(newJaeger)),
 	)
 
 	r := etcd.NewRegistry()

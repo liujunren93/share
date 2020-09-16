@@ -39,7 +39,7 @@ func ServerGrpcWrap(ot opentracing.Tracer) grpc.UnaryServerInterceptor {
 			opentracing.TextMap,
 			MDCarrier{md},
 		)
-		var serSpan opentracing.Span
+
 		if err != nil && err != opentracing.ErrSpanContextNotFound {
 			log2.Logger.Errorf("extract from metadata err: %v", err)
 		} else {
@@ -50,18 +50,12 @@ func ServerGrpcWrap(ot opentracing.Tracer) grpc.UnaryServerInterceptor {
 				ext.SpanKindRPCServer,
 			)
 			defer serSpan.Finish()
-
 			ctx = opentracing.ContextWithSpan(ctx, serSpan)
 		}
 
 		i, err := handler(ctx, req)
 		if err != nil {
 			log2.Logger.Error(err)
-			if serSpan != nil {
-
-				serSpan.LogFields(log.String("event", "error"), log.String("message", err.Error()))
-			}
-
 		}
 		return i, err
 	}
@@ -103,7 +97,7 @@ func ClientGrpcCallWrap(ot opentracing.Tracer) grpc.UnaryClientInterceptor {
 
 		if err != nil {
 			log2.Logger.Error(err)
-			span.LogFields(log.String("event", "error"), log.String("message", err.Error()))
+			span.LogFields(log.String("event", "error"), log.String("message","adsadsa"))
 		}
 
 		return err
