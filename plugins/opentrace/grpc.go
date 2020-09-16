@@ -57,7 +57,11 @@ func ServerGrpcWrap(ot opentracing.Tracer) grpc.UnaryServerInterceptor {
 		i, err := handler(ctx, req)
 		if err != nil {
 			log2.Logger.Error(err)
-			serSpan.LogFields(log.String("event", "error"), log.String("message", err.Error()))
+			if serSpan != nil {
+
+				serSpan.LogFields(log.String("event", "error"), log.String("message", err.Error()))
+			}
+
 		}
 		return i, err
 	}
