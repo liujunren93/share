@@ -1,4 +1,4 @@
-package errors
+package serrors
 
 
 type Error struct {
