@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"github.com/liujunren93/share/client/selector"
+	"github.com/liujunren93/share/errors"
 	"github.com/liujunren93/share/log"
 	"github.com/liujunren93/share/server"
 	"google.golang.org/grpc"
@@ -33,18 +34,19 @@ func (c *Client) Init(opts ...option) {
 
 }
 
-func (c *Client) Client(serverName string) (*grpc.ClientConn, error) {
+func (c *Client) Client(serverName string) (*grpc.ClientConn, *errors.Error) {
 	service, err := c.options.registry.GetService(serverName)
 	if err != nil {
 		log.Logger.Error(err)
-		return nil, err
+		return nil, errors.NotFound(err, nil)
 	}
 	if len(service) == 0 {
 		log.Logger.Error("service not found")
-		return nil, nil
+		return nil, errors.NotFound(err, nil)
 	}
 	round := selector.Round(service)
 	s := round()
 	c.options.grpcOpts = append(c.options.grpcOpts, server.UnaryClient(c.options.callWrappers...))
-	return grpc.DialContext(c.options.ctx, s, c.options.grpcOpts...)
+	dialContext, err := grpc.DialContext(c.options.ctx, s, c.options.grpcOpts...)
+	return dialContext, errors.InternalServerError(err, nil)
 }

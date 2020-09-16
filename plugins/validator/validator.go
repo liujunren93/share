@@ -2,7 +2,7 @@ package validator
 
 import (
 	"context"
-	"github.com/liujunren93/share/status"
+	"github.com/liujunren93/share/errors"
 	"google.golang.org/grpc"
 )
 
@@ -15,7 +15,7 @@ func NewHandlerWrapper() grpc.UnaryServerInterceptor {
 		if v, ok := req.(Validator); ok {
 			if err := v.Validate(); err != nil {
 
-				return nil, status.BadRequest(err, nil)
+				return nil, errors.BadRequest(err, nil)
 			}
 		}
 		return handler(ctx, req)
