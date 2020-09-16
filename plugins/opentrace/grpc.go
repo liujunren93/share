@@ -2,11 +2,12 @@ package opentrace
 
 import (
 	"context"
+	log2 "github.com/liujunren93/share/log"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/opentracing/opentracing-go/log"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/grpclog"
+
 	"google.golang.org/grpc/metadata"
 )
 
@@ -29,7 +30,6 @@ func (m MDCarrier) Set(key, val string) {
 }
 
 func ServerGrpcWrap(ot opentracing.Tracer) grpc.UnaryServerInterceptor {
-
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
@@ -39,23 +39,27 @@ func ServerGrpcWrap(ot opentracing.Tracer) grpc.UnaryServerInterceptor {
 			opentracing.TextMap,
 			MDCarrier{md},
 		)
-
+		var serSpan opentracing.Span
 		if err != nil && err != opentracing.ErrSpanContextNotFound {
-			grpclog.Errorf("extract from metadata err: %v", err)
+			log2.Logger.Errorf("extract from metadata err: %v", err)
 		} else {
-			span := ot.StartSpan(
+			serSpan := ot.StartSpan(
 				info.FullMethod,
 				ext.RPCServerOption(spanContext),
 				opentracing.Tag{Key: string(ext.Component), Value: "gRPC Server"},
 				ext.SpanKindRPCServer,
 			)
-			defer span.Finish()
+			defer serSpan.Finish()
 
-			ctx = opentracing.ContextWithSpan(ctx, span)
+			ctx = opentracing.ContextWithSpan(ctx, serSpan)
 		}
 
-		return handler(ctx, req)
-
+		i, err := handler(ctx, req)
+		if err != nil {
+			log2.Logger.Error(err)
+			serSpan.LogFields(log.String("event", "error"), log.String("message", err.Error()))
+		}
+		return i, err
 	}
 }
 
@@ -94,6 +98,7 @@ func ClientGrpcCallWrap(ot opentracing.Tracer) grpc.UnaryClientInterceptor {
 		err = invoker(newCtx, method, req, reply, cc, opts...)
 
 		if err != nil {
+			log2.Logger.Error(err)
 			span.LogFields(log.String("event", "error"), log.String("message", err.Error()))
 		}
 
