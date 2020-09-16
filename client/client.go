@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"github.com/liujunren93/share/client/selector"
 	"github.com/liujunren93/share/log"
 	"github.com/liujunren93/share/serrors"
@@ -42,8 +42,8 @@ func (c *Client) Client(serverName string) (*grpc.ClientConn, *serrors.Error) {
 		return nil, serrors.NotFound(err, nil)
 	}
 	if len(service) == 0 {
-		log.Logger.Error("service not found")
-		return nil, serrors.NotFound(errors.New("service not found"), nil)
+		log.Logger.Errorf("[share]service:%s not found",serverName)
+		return nil, serrors.NotFound(fmt.Errorf("[share]service:%s not found",serverName), nil)
 	}
 	round := selector.Round(service)
 	s := round()
