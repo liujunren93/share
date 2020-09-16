@@ -97,7 +97,7 @@ func ClientGrpcCallWrap(ot opentracing.Tracer) grpc.UnaryClientInterceptor {
 
 		if err != nil {
 			log2.Logger.Error(err)
-			span.LogFields(log.String("event", "error"), log.String("message","adsadsa"))
+			span.LogFields(log.String("event", "error"), log.String("message",err.Error()))
 		}
 
 		return err
