@@ -50,7 +50,7 @@ func (e *etcdRegistry) Registry(service *registry.Service, options ...registry.O
 
 	ctx := e.options.RegistryCtx
 	if ctx == nil {
-		ctx, _ = context.WithTimeout(ctx, time.Second*2)
+		ctx, _ = context.WithTimeout(context.TODO(), time.Second*2)
 	}
 	grant, err := lease.Grant(ctx, 5)
 	if err != nil {
@@ -67,7 +67,7 @@ func (e *etcdRegistry) Registry(service *registry.Service, options ...registry.O
 func (e *etcdRegistry) GetService(serverName string, option ...registry.Option) ([]*registry.Service, error) {
 	ctx := e.options.GetServerCtx
 	if ctx == nil {
-		ctx, _ = context.WithTimeout(ctx, time.Second*2)
+		ctx, _ = context.WithTimeout(context.TODO(), time.Second*2)
 	}
 	get, err := e.client.Get(ctx, GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithSerializable())
 	if err != nil {
