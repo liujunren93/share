@@ -5,7 +5,7 @@ import (
 	"google.golang.org/grpc/status"
 	"net/http"
 )
-
+//type Status status.Status
 func New(code int32, msg string) error {
 	return status.New(codes.Code(code), msg).Err()
 }
