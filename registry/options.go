@@ -3,14 +3,14 @@ package registry
 import (
 	"context"
 	"crypto/tls"
-	"time"
 )
 
 type Options struct {
-	Addrs     []string
-	Prefix    string
-	Timeout   time.Duration
-	TLSConfig *tls.Config
+	Addrs        []string
+	Prefix       string
+	RegistryCtx  context.Context
+	GetServerCtx context.Context
+	TLSConfig    *tls.Config
 }
 
 type WatchOptions struct {
@@ -21,7 +21,6 @@ type WatchOptions struct {
 var DefaultOptions = Options{
 	Addrs:     []string{"127.0.0.1:2379"},
 	Prefix:    "share",
-	Timeout:   time.Second * 2,
 	TLSConfig: nil,
 }
 
@@ -37,9 +36,14 @@ func WithPrefix(prefix string) Option {
 	}
 }
 
-func WithTimeout(duration time.Duration) Option {
+func WithRegistryCtx(ctx context.Context) Option {
 	return func(options *Options) {
-		options.Timeout = duration
+		options.RegistryCtx = ctx
+	}
+}
+func WithGetServerCtx(ctx context.Context) Option {
+	return func(options *Options) {
+		options.GetServerCtx = ctx
 	}
 }
 

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"github.com/liujunren93/share/log"
 	"github.com/liujunren93/share/registry"
@@ -74,7 +75,7 @@ func (g *grpcServer) Registry(reg registry.Registry) error {
 
 	if g.options.Name == "" {
 		log.Logger.Panicln("service name cannot be empty")
-		//return serrors.New("service name cannot be empty")
+		return errors.New("service name cannot be empty\"")
 	}
 	ip, _ := utils.GetIntranetIp()
 	endpoint := strings.Replace(g.options.Address, "[::]", ip.String(), 1)

@@ -1,4 +1,5 @@
 package etcd
+
 import (
 	"context"
 	"encoding/json"
@@ -47,22 +48,28 @@ func (e *etcdRegistry) Registry(service *registry.Service, options ...registry.O
 	}
 	lease := clientv3.NewLease(e.client)
 
-	todo := context.TODO()
-	grant, err := lease.Grant(todo, 5)
+	ctx := e.options.RegistryCtx
+	if ctx == nil {
+		ctx, _ = context.WithTimeout(ctx, time.Second*2)
+	}
+	grant, err := lease.Grant(ctx, 5)
 	if err != nil {
 		return err
 	}
-	lease.KeepAlive(todo, grant.ID)
+	lease.KeepAlive(ctx, grant.ID)
 	_, err = e.client.Put(context.TODO(), RegisterPath(e.options.Prefix, service), encode(service), clientv3.WithLease(grant.ID))
 
 	fmt.Printf("[share] Registering on [etcd]:%s  \n", RegisterPath(e.options.Prefix, service))
-	fmt.Printf("[share] Registering name: %s  \n",service.Name )
+	fmt.Printf("[share] Registering name: %s  \n", service.Name)
 	return err
 }
 
 func (e *etcdRegistry) GetService(serverName string, option ...registry.Option) ([]*registry.Service, error) {
-	fmt.Println(GetServicePath(e.options.Prefix, serverName))
-	get, err := e.client.Get(context.TODO(), GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithSerializable())
+	ctx := e.options.GetServerCtx
+	if ctx == nil {
+		ctx, _ = context.WithTimeout(ctx, time.Second*2)
+	}
+	get, err := e.client.Get(ctx, GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithSerializable())
 	if err != nil {
 		return nil, err
 	}

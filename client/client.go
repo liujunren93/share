@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/liujunren93/share/client/selector"
 	"github.com/liujunren93/share/log"
+	"github.com/liujunren93/share/registry"
 	"github.com/liujunren93/share/serrors"
 	"github.com/liujunren93/share/server"
 	"google.golang.org/grpc"
@@ -36,7 +37,7 @@ func (c *Client) Init(opts ...option) {
 }
 
 func (c *Client) Client(serverName string) (*grpc.ClientConn, error) {
-	service, err := c.options.registry.GetService(serverName)
+	service, err := c.options.registry.GetService(serverName,registry.WithGetServerTimeout(time.Second))
 	if err != nil {
 		log.Logger.Error(err)
 		return nil, serrors.NotFound(err)
