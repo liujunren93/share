@@ -9,10 +9,11 @@ import (
 
 type options struct {
 	name         string
+	serverName   string
 	callWrappers []grpc.UnaryClientInterceptor
 	grpcOpts     []grpc.DialOption
 	ctx          context.Context
-	Selector     func(s []*registry.Service) selector.Next
+	Selector     selector.RoundType
 	registry     registry.Registry
 }
 
@@ -46,13 +47,14 @@ func WithCtx(ctx context.Context) option {
 	}
 }
 
-func WithSelector(f func(s []*registry.Service) selector.Next) option {
+func WithSelector(roundType selector.RoundType) option {
 	return func(o *options) {
-		o.Selector = f
+		o.Selector = roundType
 	}
 }
 
 func WithRegistry(r registry.Registry) option {
+
 	return func(o *options) {
 		o.registry = r
 	}
