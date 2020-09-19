@@ -9,12 +9,14 @@ import (
 	"github.com/liujunren93/share/log"
 	"github.com/liujunren93/share/registry"
 	"strings"
+	"sync"
 	"time"
 )
 
 type etcdRegistry struct {
-	client  *clientv3.Client
-	options *registry.Options
+	client     *clientv3.Client
+	options    *registry.Options
+	serverList sync.Map
 }
 
 func NewRegistry() *etcdRegistry {
@@ -50,7 +52,7 @@ func (e *etcdRegistry) Registry(service *registry.Service, options ...registry.O
 
 	ctx := e.options.RegistryCtx
 	if ctx == nil {
-		ctx=context.TODO()
+		ctx = context.TODO()
 	}
 	grant, err := lease.Grant(ctx, 5)
 	if err != nil {
@@ -64,7 +66,11 @@ func (e *etcdRegistry) Registry(service *registry.Service, options ...registry.O
 	return err
 }
 
-func (e *etcdRegistry) GetService(serverName string, option ...registry.Option) ([]*registry.Service, error) {
+func (e *etcdRegistry) GetService(serverName string, option ...registry.Option) (*[]*registry.Service, error) {
+	load, ok := e.serverList.Load(serverName)
+	if ok {
+		return load.(*[]*registry.Service),nil
+	}
 	ctx := e.options.GetServerCtx
 	if ctx == nil {
 		ctx, _ = context.WithTimeout(context.TODO(), time.Second*2)
@@ -82,7 +88,10 @@ func (e *etcdRegistry) GetService(serverName string, option ...registry.Option) 
 	for _, r := range serviceMap {
 		serviceList = append(serviceList, r)
 	}
-	return serviceList, nil
+
+	go e.Watch(serverName, context.TODO(), &serviceList)
+	e.serverList.Store(serverName,&serviceList)
+	return &serviceList, nil
 }
 
 func (e *etcdRegistry) Watch(serverName string, ctx context.Context, srvList *[]*registry.Service) {
@@ -126,6 +135,15 @@ func (e *etcdRegistry) Watch(serverName string, ctx context.Context, srvList *[]
 			}
 		}
 	}
+}
+
+func inSlice(list []string, s string) bool {
+	for _, str := range list {
+		if str == s {
+			return true
+		}
+	}
+	return false
 }
 
 func (e *etcdRegistry) GetPrefix() string {

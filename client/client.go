@@ -45,7 +45,8 @@ func (c *Client) Client(serverName string) (*grpc.ClientConn, error) {
 		log.Logger.Errorf("[share]service:%s not found",serverName)
 		return nil, serrors.NotFound(fmt.Errorf("[share]service:%s not found",serverName))
 	}
-	round := selector.Round(service)
+	round := selector.Round(&service)
+
 	s := round()
 	c.options.grpcOpts = append(c.options.grpcOpts, server.UnaryClient(c.options.callWrappers...))
 	dialContext, err := grpc.DialContext(c.options.ctx, s, c.options.grpcOpts...)
@@ -55,3 +56,7 @@ func (c *Client) Client(serverName string) (*grpc.ClientConn, error) {
 	}
 	return dialContext, nil
 }
+
+
+
+
