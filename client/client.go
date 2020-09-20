@@ -7,7 +7,6 @@ import (
 	"github.com/liujunren93/share/log"
 	"github.com/liujunren93/share/serrors"
 	"github.com/liujunren93/share/server"
-	"time"
 )
 
 type option func(*options)
@@ -19,8 +18,6 @@ type Client struct {
 func NewClient() *Client {
 	var c Client
 	c.options = &DefaultOptions
-	timeout, _ := context.WithTimeout(c.options.ctx, time.Second*2)
-	c.options.ctx = timeout
 	return &c
 }
 
@@ -37,12 +34,14 @@ func (c *Client) Client(serverName string) (selector.Next, error) {
 		log.Logger.Error(err)
 		return nil, serrors.NotFound(err)
 	}
-	if service == nil {
+
+	if *service == nil {
 		log.Logger.Errorf("[share]service:%s not found", serverName)
 		return nil, serrors.NotFound(fmt.Errorf("[share]service:%s not found", serverName))
 	}
 
 	c.options.grpcOpts = append(c.options.grpcOpts, server.UnaryClient(c.options.callWrappers...))
-	return c.options.Selector(service, c.options.ctx, c.options.grpcOpts...), nil
+	ctx := context.WithValue(c.options.ctx, "serverName", serverName)
+	return c.options.Selector(service, ctx, c.options.grpcOpts...), nil
 
 }

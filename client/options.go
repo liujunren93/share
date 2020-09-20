@@ -20,7 +20,7 @@ type options struct {
 var DefaultOptions = options{
 	grpcOpts: []grpc.DialOption{grpc.WithInsecure()},
 	ctx:      context.TODO(),
-	Selector: selector.Round,
+	Selector: selector.RoundRobin,
 }
 
 func WithName(name string) option {

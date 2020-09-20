@@ -2,11 +2,13 @@ package selector
 
 import (
 	"context"
+	"fmt"
 	"github.com/liujunren93/share/log"
 	"github.com/liujunren93/share/registry"
 	"github.com/liujunren93/share/serrors"
 	"github.com/liujunren93/share/utils"
 	"google.golang.org/grpc"
+	"time"
 )
 
 type (
@@ -15,17 +17,29 @@ type (
 )
 
 func Round(s *[]*registry.Service, ctx context.Context, option ...grpc.DialOption) Next {
+	value := ctx.Value("serverName")
 	return func() (*grpc.ClientConn, error) {
+
+		if len(*s)==0 {
+			err := fmt.Errorf("[share]service:%v is down", value)
+			log.Logger.Error(err)
+			return nil, serrors.InternalServerError(err)
+		}
 		randInt := utils.RandInt(len(*s))
 		endpoint := (*s)[randInt].Endpoint
+		ctx,_:=context.WithTimeout(ctx, time.Second)
 		return getConn(endpoint, ctx, option...)
 	}
 }
 
-func roundRobin(s *[]*registry.Service, ctx context.Context, option ...grpc.DialOption) Next {
+func RoundRobin(s *[]*registry.Service, ctx context.Context, option ...grpc.DialOption) Next {
 	randInt := utils.RandInt(len(*s))
+
 	return func() (*grpc.ClientConn, error) {
-		endpoint := (*s)[randInt%randInt].Endpoint
+		randInt++
+		endpoint := (*s)[randInt%len(*s)].Endpoint
+		ctx,_:=context.WithTimeout(ctx, time.Second)
+
 		return getConn(endpoint, ctx, option...)
 	}
 }

@@ -20,7 +20,7 @@ type hello struct {
 func (h hello) Say(ctx context.Context, req *proto.Req) (*proto.Res, error) {
 	//panic("sdsads")
 	var res proto.Res
-	res.Msg = req.Name + ":hello world"
+	res.Msg = req.Name + ":hello world1"
 	return &res, nil
 }
 
