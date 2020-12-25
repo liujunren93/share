@@ -3,25 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/liujunren93/share/example"
 	"github.com/liujunren93/share/example/proto"
-	"github.com/liujunren93/share/plugins/metadata"
 	"github.com/liujunren93/share/plugins/opentrace"
 	"github.com/liujunren93/share/plugins/validator"
 	"github.com/liujunren93/share/registry"
 	"github.com/liujunren93/share/registry/etcd"
 	"github.com/liujunren93/share/server"
+	"github.com/liujunren93/share_utils/wrapper/openTrace"
 	"github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
-	metadata2 "google.golang.org/grpc/metadata"
 )
 
 type hello struct {
 }
 
 func (h hello) Say(ctx context.Context, req *proto.Req) (*proto.Res, error) {
-	c, b := metadata2.FromIncomingContext(ctx)
-	fmt.Println(c,b)
 
 	var res proto.Res
 	res.Msg = req.Name + ":hello world1"
@@ -29,7 +25,7 @@ func (h hello) Say(ctx context.Context, req *proto.Req) (*proto.Res, error) {
 }
 
 func main() {
-	newJaeger, _, err := example.NewJaeger("app", "127.0.0.1:6831")
+	newJaeger, _, err := openTrace.NewJaeger("app", "127.0.0.1:6831")
 	fmt.Println(err)
 	opentracing.SetGlobalTracer(newJaeger)
 
@@ -38,7 +34,7 @@ func main() {
 		//server.WithAddress("127.0.0.1:2222"),
 		server.WithHdlrWrappers(validator.NewHandlerWrapper(),
 			opentrace.ServerGrpcWrap(newJaeger),
-			metadata.ServerValueWrap(),
+
 		),
 	)
 
