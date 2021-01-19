@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/liujunren93/share/core/registry"
+	"github.com/liujunren93/share/core/registry/etcd"
 	"github.com/liujunren93/share/example/proto"
 	"github.com/liujunren93/share/plugins/opentrace"
 	"github.com/liujunren93/share/plugins/validator"
-	"github.com/liujunren93/share/registry"
-	"github.com/liujunren93/share/registry/etcd"
 	"github.com/liujunren93/share/server"
 	"github.com/liujunren93/share_utils/wrapper/openTrace"
 	"github.com/opentracing/opentracing-go"
@@ -38,8 +38,10 @@ func main() {
 		),
 	)
 
-	r := etcd.NewRegistry()
-	r.Init(registry.WithAddrs("127.0.0.1:2379"))
+	r ,err:= etcd.NewRegistry(registry.WithAddrs("127.0.0.1:2379"))
+	if err != nil {
+		panic(err)
+	}
 	grpcServer.Registry(r)
 	proto.RegisterHelloWorldServer(grpcServer.Server().(*grpc.Server), new(hello))
 

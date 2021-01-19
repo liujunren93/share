@@ -1,12 +1,15 @@
 package registry
 
-import "context"
+import (
+	"context"
+)
+
+var RegistryInstance Registry
 
 type Registry interface {
-	Init(...Option) error
-	Registry(*Service, ...Option) error
-	GetService(serverName string, opts ...Option) (*[]*Service, error)
-	Watch(serverName string, ctx context.Context, srvList *[]*Service)
+	Registry(*Service) error
+	GetService(serverName string) ([]*Service, error)
+	Watch(serverName string, ctx context.Context, f func([]*Service))
 	GetPrefix() string
 }
 

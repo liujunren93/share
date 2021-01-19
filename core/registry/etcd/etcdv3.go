@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/coreos/etcd/clientv3"
+	"github.com/liujunren93/share/core/registry"
 	"github.com/liujunren93/share/log"
-	"github.com/liujunren93/share/registry"
+	"go.etcd.io/etcd/clientv3"
 	"strings"
 	"sync"
 	"time"
@@ -19,13 +19,20 @@ type etcdRegistry struct {
 	serverList sync.Map
 }
 
-func NewRegistry() *etcdRegistry {
-	return &etcdRegistry{
+func NewRegistry(options ...registry.Option) (*etcdRegistry, error) {
+	e := etcdRegistry{
 		options: &registry.DefaultOptions,
 	}
+	err := e.init(options...)
+	if err != nil {
+		return nil, err
+	}
+	registry.RegistryInstance = &e
+	return &e, nil
+
 }
 
-func (e *etcdRegistry) Init(options ...registry.Option) error {
+func (e *etcdRegistry) init(options ...registry.Option) error {
 	for _, o := range options {
 		o(e.options)
 	}
@@ -43,11 +50,8 @@ func (e *etcdRegistry) Init(options ...registry.Option) error {
 	return nil
 }
 
-func (e *etcdRegistry) Registry(service *registry.Service, options ...registry.Option) error {
-	err := e.Init(options...)
-	if err != nil {
-		return err
-	}
+func (e *etcdRegistry) Registry(service *registry.Service) error {
+
 	lease := clientv3.NewLease(e.client)
 
 	ctx := e.options.RegistryCtx
@@ -66,10 +70,10 @@ func (e *etcdRegistry) Registry(service *registry.Service, options ...registry.O
 	return err
 }
 
-func (e *etcdRegistry) GetService(serverName string, option ...registry.Option) (*[]*registry.Service, error) {
+func (e *etcdRegistry) GetService(serverName string) ([]*registry.Service, error) {
 	load, ok := e.serverList.Load(serverName)
 	if ok {
-		return load.(*[]*registry.Service),nil
+		return load.([]*registry.Service), nil
 	}
 	ctx := e.options.GetServerCtx
 	if ctx == nil {
@@ -88,17 +92,21 @@ func (e *etcdRegistry) GetService(serverName string, option ...registry.Option) 
 	for _, r := range serviceMap {
 		serviceList = append(serviceList, r)
 	}
-
-	go e.Watch(serverName, context.TODO(), &serviceList)
-	e.serverList.Store(serverName,&serviceList)
-	return &serviceList, nil
+	e.serverList.Store(serverName, serviceList)
+	return serviceList, nil
 }
 
-func (e *etcdRegistry) Watch(serverName string, ctx context.Context, srvList *[]*registry.Service) {
+func (e *etcdRegistry) Watch(serverName string, ctx context.Context, up func([]*registry.Service)) {
 
 	watch := e.client.Watch(ctx, GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithPrevKV())
 
 	for response := range watch {
+		var serviceList []*registry.Service
+		load, ok := e.serverList.Load(serverName)
+		if ok {
+			serviceList = load.([]*registry.Service)
+		}
+
 		if response.Err() != nil {
 			log.Logger.Error(response.Err())
 			return
@@ -114,26 +122,27 @@ func (e *etcdRegistry) Watch(serverName string, ctx context.Context, srvList *[]
 				service := decode(event.Kv.Value)
 				if event.IsCreate() {
 
-					*srvList = append(*srvList, service)
+					serviceList = append(serviceList, service)
 				}
 				if event.IsModify() {
-					for i, service := range *srvList {
+					for i, service := range serviceList {
 						if "node_"+service.Node == node[len(node)-1] {
-							(*srvList)[i] = service
+							serviceList[i] = service
 						}
 					}
 				}
 
 			case clientv3.EventTypeDelete:
-				for i, service := range *srvList {
+				for i, service := range serviceList {
 
 					if "node_"+service.Node == node[len(node)-1] {
-						*srvList = append((*srvList)[:i], (*srvList)[i+1:]...)
+						serviceList = append(serviceList[:i], serviceList[i+1:]...)
 					}
 				}
 
 			}
 		}
+		up(serviceList)
 	}
 }
 
