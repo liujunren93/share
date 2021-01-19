@@ -3,8 +3,8 @@ package server
 import (
 	"errors"
 	"fmt"
+	"github.com/liujunren93/share/core/registry"
 	"github.com/liujunren93/share/log"
-	"github.com/liujunren93/share/registry"
 	"github.com/liujunren93/share/utils"
 	"google.golang.org/grpc"
 	"net"

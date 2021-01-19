@@ -2,25 +2,23 @@ package client
 
 import (
 	"context"
-	"github.com/liujunren93/share/client/selector"
-	"github.com/liujunren93/share/registry"
+	"github.com/liujunren93/share/core/registry"
 	"google.golang.org/grpc"
 )
 
 type options struct {
 	name         string
-	serverName   string
 	callWrappers []grpc.UnaryClientInterceptor
 	grpcOpts     []grpc.DialOption
 	ctx          context.Context
-	Selector     selector.RoundType
 	registry     registry.Registry
+
+
 }
 
 var DefaultOptions = options{
 	grpcOpts: []grpc.DialOption{grpc.WithInsecure()},
 	ctx:      context.TODO(),
-	Selector: selector.RoundRobin,
 }
 
 func WithName(name string) option {
@@ -44,12 +42,6 @@ func WithCallWrappers(ops ...grpc.UnaryClientInterceptor) option {
 func WithCtx(ctx context.Context) option {
 	return func(o *options) {
 		o.ctx = ctx
-	}
-}
-
-func WithSelector(roundType selector.RoundType) option {
-	return func(o *options) {
-		o.Selector = roundType
 	}
 }
 
