@@ -19,7 +19,7 @@ func main() {
 	r,_ := etcd.NewRegistry(registry.WithAddrs("127.0.0.1:2379"))
 	newClient := client.NewClient(client.WithRegistry(r),client.WithBalancer(roundrobin.Name))
 
-	conn, _ := newClient.Dial("app")
+	conn, _ := newClient.Client("app")
 	for {
 		fmt.Scanln()
 		mathClient := proto.NewHelloWorldClient(conn)
