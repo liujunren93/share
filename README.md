@@ -17,62 +17,95 @@ grpc 客户端封装
 server:<br>
 
 ```golang
-
 package main
 
 import (
 	"context"
-	"github.com/shareChina/share/example/proto"
-	"github.com/shareChina/share/registry"
-	"github.com/shareChina/share/registry/etcd"
-	"github.com/shareChina/share/server"
+	"flag"
+	"fmt"
+	"github.com/liujunren93/share/core/registry"
+	"github.com/liujunren93/share/core/registry/etcd"
+	"github.com/liujunren93/share/example/proto"
+	"github.com/liujunren93/share/plugins/opentrace"
+	"github.com/liujunren93/share/plugins/validator"
+	"github.com/liujunren93/share/server"
+	"github.com/liujunren93/share_utils/wrapper/openTrace"
+	"github.com/opentracing/opentracing-go"
+	"google.golang.org/grpc"
 )
 
 type hello struct {
 }
 
 func (h hello) Say(ctx context.Context, req *proto.Req) (*proto.Res, error) {
-
 	var res proto.Res
-	res.Msg = req.Name + ":hello world"
-
+	res.Msg = req.Name + ":hello world1"
 	return &res, nil
 }
-
+var weight *int
+func init() {
+	weight = flag.Int("w", 10, "")
+	flag.Parse()
+}
 func main() {
-
+	newJaeger, _, _ := openTrace.NewJaeger("app", "127.0.0.1:6831")
+	opentracing.SetGlobalTracer(newJaeger)
 	grpcServer := server.NewGrpcServer(
 		server.WithName("app"),
-		server.WithAddress(":2222"),
-		server.WithHdlrWrappers(ServerOption()),
-		)
-
-	r := etcd.NewRegistry()
-	r.Init(registry.WithAddrs("127.0.0.1:2379"))
-	grpcServer.Registry(r)
-	proto.RegisterHelloWorldServer(grpcServer.Server(), new(hello))
-
+		//server.WithAddress("127.0.0.1:2222"),
+		server.WithHdlrWrappers(validator.NewHandlerWrapper(),
+			opentrace.ServerGrpcWrap(newJaeger),
+		),
+	)
+	r, err := etcd.NewRegistry(registry.WithAddrs("127.0.0.1:2379"))
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(weight)
+	grpcServer.Registry(r, registry.WithWeight(*weight))
+	proto.RegisterHelloWorldServer(grpcServer.Server().(*grpc.Server), new(hello))
 	grpcServer.Run()
 }
+
 
 ```
 
 client:
 
 ```golang
+package main
+
+import (
+	"context"
+	"fmt"
+	"github.com/liujunren93/share/client"
+	"github.com/liujunren93/share/core/registry"
+	"github.com/liujunren93/share/core/registry/etcd"
+	"github.com/liujunren93/share/example/proto"
+	"github.com/liujunren93/share_utils/wrapper/openTrace"
+	"github.com/opentracing/opentracing-go"
+	"google.golang.org/grpc/balancer/roundrobin"
+)
 
 func main() {
-	r := etcd.NewRegistry()
-	r.Init(registry.WithAddrs("127.0.0.1:2379"))
-	newClient := client.NewClient()
-	newClient.Init(client.WithRegistry(r),client.WithCallOption(CallOption()))
-	conn, err := newClient.Client("app")
 
-	mathClient := proto.NewHelloWorldClient(conn)
-	add, err := mathClient.Say(context.TODO(), &proto.Req{
-		Name: "test",
-	})
-	fmt.Println(add, err)
+	newJaeger, _, _ := openTrace.NewJaeger("client", "127.0.0.1:6831")
+	opentracing.SetGlobalTracer(newJaeger)
+	r,_ := etcd.NewRegistry(registry.WithAddrs("127.0.0.1:2379"))
+	newClient := client.NewClient(client.WithRegistry(r),client.WithBalancer(roundrobin.Name))
+
+	conn, _ := newClient.Dial("app")
+	for {
+		fmt.Scanln()
+		mathClient := proto.NewHelloWorldClient(conn)
+
+		add, err := mathClient.Say(context.TODO(), &proto.Req{
+			Name: "adsa",
+		})
+		fmt.Println(add, err)
+	}
 }
 
-```# share
+
+
+``` 

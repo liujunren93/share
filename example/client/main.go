@@ -9,18 +9,17 @@ import (
 	"github.com/liujunren93/share/example/proto"
 	"github.com/liujunren93/share_utils/wrapper/openTrace"
 	"github.com/opentracing/opentracing-go"
+	"google.golang.org/grpc/balancer/roundrobin"
 )
 
 func main() {
 
 	newJaeger, _, _ := openTrace.NewJaeger("client", "127.0.0.1:6831")
 	opentracing.SetGlobalTracer(newJaeger)
-	r,err := etcd.NewRegistry(registry.WithAddrs("127.0.0.1:2379"))
-	newClient := client.NewClient(client.WithRegistry(r))
+	r,_ := etcd.NewRegistry(registry.WithAddrs("127.0.0.1:2379"))
+	newClient := client.NewClient(client.WithRegistry(r),client.WithBalancer(roundrobin.Name))
 
-	conn, err := newClient.Dial("app")
-	fmt.Println(err)
-	//os.Exit(1)
+	conn, _ := newClient.Dial("app")
 	for {
 		fmt.Scanln()
 		mathClient := proto.NewHelloWorldClient(conn)
@@ -30,5 +29,5 @@ func main() {
 		})
 		fmt.Println(add, err)
 	}
-
 }
+

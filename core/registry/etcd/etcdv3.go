@@ -20,6 +20,7 @@ type etcdRegistry struct {
 }
 
 func NewRegistry(options ...registry.Option) (*etcdRegistry, error) {
+
 	e := etcdRegistry{
 		options: &registry.DefaultOptions,
 	}

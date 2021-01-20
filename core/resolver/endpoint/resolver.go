@@ -3,6 +3,7 @@ package endpoint
 import (
 	"context"
 	"github.com/liujunren93/share/core/registry"
+	"google.golang.org/grpc/attributes"
 	"google.golang.org/grpc/resolver"
 )
 
@@ -25,11 +26,15 @@ func (e *endpointBuilder) Build(target resolver.Target, cc resolver.ClientConn, 
 	}
 	up := func(serviceList []*registry.Service) {
 		for _, s := range serviceList {
-			address = append(address, resolver.Address{Addr: s.Endpoint})
+			values := new(attributes.Attributes).WithValues("weight", s.Weight)
+			address = append(address, resolver.Address{Addr: s.Endpoint,Attributes: values})
 		}
+
 		cc.UpdateState(resolver.State{
 			Addresses: address,
+
 		})
+
 	}
 
 	go registry.RegistryInstance.Watch(target.Endpoint, context.TODO(), up)

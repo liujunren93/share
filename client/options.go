@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/liujunren93/share/core/registry"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/balancer/roundrobin"
 )
 
 type options struct {
@@ -12,15 +13,20 @@ type options struct {
 	grpcOpts     []grpc.DialOption
 	ctx          context.Context
 	registry     registry.Registry
-
-
+	balancer     string
 }
 
 var DefaultOptions = options{
 	grpcOpts: []grpc.DialOption{grpc.WithInsecure()},
 	ctx:      context.TODO(),
+	balancer: roundrobin.Name,
 }
 
+func WithBalancer(name string) option {
+	return func(o *options) {
+		o.balancer = name
+	}
+}
 func WithName(name string) option {
 	return func(o *options) {
 		o.name = name

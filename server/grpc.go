@@ -71,7 +71,7 @@ func (g *grpcServer) Init(options ...Option) {
 	g.srv = grpc.NewServer(gopts...)
 }
 
-func (g *grpcServer) Registry(reg registry.Registry) error {
+func (g *grpcServer) Registry(reg registry.Registry, servers ...registry.Server) error {
 
 	if g.options.Name == "" {
 		log.Logger.Panicln("service name cannot be empty")
@@ -85,6 +85,9 @@ func (g *grpcServer) Registry(reg registry.Registry) error {
 		Version:  g.options.Version,
 		Node:     utils.GetUuidV3(reg.GetPrefix()),
 		Endpoint: endpoint,
+	}
+	for _, server := range servers {
+		server(&ser)
 	}
 	return reg.Registry(&ser)
 }
