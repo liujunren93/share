@@ -6,6 +6,7 @@ import (
 
 var RegistryInstance Registry
 
+
 type Registry interface {
 	Registry(*Service) error
 	GetService(serverName string) ([]*Service, error)

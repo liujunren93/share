@@ -1,4 +1,4 @@
-package randRobin
+package roundRobin
 
 import (
 	thisBalancer "github.com/liujunren93/share/core/balancer"
@@ -10,17 +10,18 @@ import (
 const Name = "round_robin"
 
 func newBuilder() balancer.Builder {
-	return base.NewBalancerBuilderV2(Name, &weightPickerBuilder{}, base.Config{HealthCheck: false})
+	return base.NewBalancerBuilderV2(Name, &roundRobinPickerBuilder{}, base.Config{HealthCheck: false})
 }
 func init() {
 
 	balancer.Register(newBuilder())
 }
 
-type weightPickerBuilder struct {
+
+type roundRobinPickerBuilder struct {
 }
 
-func (w *weightPickerBuilder) Build(info base.PickerBuildInfo) balancer.V2Picker {
+func (*roundRobinPickerBuilder) Build(info base.PickerBuildInfo) balancer.V2Picker {
 
 	var scs []thisBalancer.SubConn
 	for sc, _ := range info.ReadySCs {
@@ -30,16 +31,16 @@ func (w *weightPickerBuilder) Build(info base.PickerBuildInfo) balancer.V2Picker
 			//Weight:  value.(int8),
 		})
 	}
-	return &weightPickerPicker{subConns: scs}
+	return &roundRobinPickerPicker{subConns: scs}
 }
 
-type weightPickerPicker struct {
+type roundRobinPickerPicker struct {
 	subConns []thisBalancer.SubConn
 	mu       sync.Mutex
 	next     int
 }
 
-func (p *weightPickerPicker) Pick(balancer.PickInfo) (balancer.PickResult, error) {
+func (p *roundRobinPickerPicker) Pick(balancer.PickInfo) (balancer.PickResult, error) {
 
 	p.mu.Lock()
 	sc := p.subConns[p.next]

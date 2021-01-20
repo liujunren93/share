@@ -2,7 +2,6 @@ package client
 
 import (
 	"fmt"
-	"github.com/liujunren93/share/core/balancer/weight"
 	"google.golang.org/grpc"
 	//"google.golang.org/grpc/balancer/roundrobin"
 )
@@ -26,7 +25,7 @@ func NewClient(opts ...option) *Client {
 func (c *Client) Dial(serverName string) (*grpc.ClientConn, error) {
 
 	opts := c.options.grpcOpts
-	opts = append(opts, grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"loadBalancingPolicy":"%s"}`, weight.Name)))
+	opts = append(opts, grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"loadBalancingPolicy":"%s"}`, c.options.balancer)))
 
 	return grpc.Dial(BuildDirectTarget(serverName), opts...)
 }
