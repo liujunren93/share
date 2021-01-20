@@ -6,7 +6,7 @@ import (
 
 type Server interface {
 	Init(options ...Option)
-	Registry(reg registry.Registry) error
+	Registry(reg registry.Registry, servers ...registry.Server) error
 	Server() interface{}
 	Run() error
 }

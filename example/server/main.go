@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"github.com/liujunren93/share/core/registry"
 	"github.com/liujunren93/share/core/registry/etcd"
@@ -24,7 +25,17 @@ func (h hello) Say(ctx context.Context, req *proto.Req) (*proto.Res, error) {
 	return &res, nil
 }
 
+var weight *int
+
+func init() {
+	weight=flag.Int("w", 10,"")
+	flag.Parse()
+
+}
+
 func main() {
+
+
 	newJaeger, _, err := openTrace.NewJaeger("app", "127.0.0.1:6831")
 	fmt.Println(err)
 	opentracing.SetGlobalTracer(newJaeger)
@@ -38,13 +49,13 @@ func main() {
 		),
 	)
 
-	r ,err:= etcd.NewRegistry(registry.WithAddrs("127.0.0.1:2379"))
+	r, err := etcd.NewRegistry(registry.WithAddrs("127.0.0.1:2379"))
 	if err != nil {
 		panic(err)
 	}
-	grpcServer.Registry(r)
+	fmt.Println(weight)
+	grpcServer.Registry(r, registry.WithWeight(*weight))
 	proto.RegisterHelloWorldServer(grpcServer.Server().(*grpc.Server), new(hello))
-
 	grpcServer.Run()
 }
 
