@@ -20,7 +20,7 @@ type WatchOptions struct {
 
 var DefaultOptions = Options{
 	Addrs:     []string{"127.0.0.1:2379"},
-	Prefix:    "share",
+	Prefix:    "share/",
 	TLSConfig: nil,
 }
 
