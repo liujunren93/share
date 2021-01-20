@@ -2,34 +2,45 @@ package server
 
 import (
 	"context"
+	recover2 "github.com/liujunren93/share/plugins/recover"
 	"google.golang.org/grpc"
+	"strings"
 )
 
-type address struct {
-	addr      string
-	IsDefault bool
-}
+
 type Options struct {
 	Name           string
 	Address        string
 	Namespace      string
 	Version        string
+	Mode           string
 	Ctx            context.Context
 	GrpcOpts       []grpc.ServerOption
 	HandleWrappers []grpc.UnaryServerInterceptor
 }
 
+type Option func(*Options)
+
 var defaultOptions = Options{
 	Address:   ":0",
-	Namespace: "share",
+	Namespace: "go/micro/srv",
 	Version:   "latest",
+	Mode:      "release",
 	Ctx:       context.TODO(),
+	HandleWrappers: []grpc.UnaryServerInterceptor{recover2.NewHandlerWrapper()},
+}
+
+//mode release,debug
+func WithMode(mode string) Option {
+	return func(o *Options) {
+		o.Mode = mode
+	}
 }
 
 func WithName(name string) Option {
 	return func(options *Options) {
-		options.Name = name
-		//options.Name = strings.Replace(name, ".", "/", -1)
+
+		options.Name = strings.Replace(name, ".", "/", -1)
 	}
 }
 
@@ -41,7 +52,7 @@ func WithAddress(addr string) Option {
 
 func WithNamespace(namespace string) Option {
 	return func(options *Options) {
-		options.Namespace = namespace
+		options.Namespace = strings.Replace(namespace, ".", "/", -1)
 	}
 }
 

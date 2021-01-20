@@ -64,6 +64,7 @@ func (e *etcdRegistry) Registry(service *registry.Service) error {
 		return err
 	}
 	lease.KeepAlive(ctx, grant.ID)
+
 	_, err = e.client.Put(ctx, RegisterPath(e.options.Prefix, service), encode(service), clientv3.WithLease(grant.ID))
 
 	fmt.Printf("[share] Registering on [etcd]:%s  \n", RegisterPath(e.options.Prefix, service))
@@ -72,6 +73,7 @@ func (e *etcdRegistry) Registry(service *registry.Service) error {
 }
 
 func (e *etcdRegistry) GetService(serverName string) ([]*registry.Service, error) {
+
 	load, ok := e.serverList.Load(serverName)
 	if ok {
 		return load.([]*registry.Service), nil
@@ -80,22 +82,24 @@ func (e *etcdRegistry) GetService(serverName string) ([]*registry.Service, error
 	if ctx == nil {
 		ctx, _ = context.WithTimeout(context.TODO(), time.Second*2)
 	}
+
 	get, err := e.client.Get(ctx, GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithSerializable())
 	if err != nil {
 		return nil, err
 	}
-	serviceMap := make(map[string]*registry.Service)
-	for _, kv := range get.Kvs {
-		r := decode(kv.Value)
-		serviceMap[string(kv.Key)] = r
-	}
+
 	var serviceList []*registry.Service
-	for _, r := range serviceMap {
-		if r.Name==serverName {
+	for _, kv := range get.Kvs {
+
+		r := decode(kv.Value)
+		if r.Namespace+"/"+r.Name==serverName {
 			serviceList = append(serviceList, r)
 		}
+
 	}
+
 	e.serverList.Store(serverName, serviceList)
+
 	return serviceList, nil
 }
 
@@ -175,10 +179,10 @@ func decode(ds []byte) *registry.Service {
 	return s
 }
 
-func RegisterPath(Prefix string, r *registry.Service) string {
-	return fmt.Sprintf("/%s/%s/node_%s", Prefix, r.Name, r.Node)
+func RegisterPath(prefix string, srv *registry.Service) string {
+	return fmt.Sprintf("/%s/%s/%s/node_%s", prefix, srv.Namespace, srv.Name, srv.Node)
 }
 
-func GetServicePath(Prefix, ServerName string) string {
-	return fmt.Sprintf("/%s/%s", Prefix, ServerName)
+func GetServicePath(prefix, srvName string) string {
+	return fmt.Sprintf("/%s/%s", prefix, srvName)
 }

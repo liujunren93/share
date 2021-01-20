@@ -42,14 +42,17 @@ func (g *grpcServer) getMaxMsgSize() int {
 func NewGrpcServer(options ...Option) *grpcServer {
 	var s grpcServer
 	s.options = &defaultOptions
-	s.Init(options...)
+	s.init(options)
 	return &s
 
 }
 
-func (g *grpcServer) Init(options ...Option) {
+func (g *grpcServer) init(options []Option) {
 	for _, o := range options {
 		o(g.options)
+	}
+	if g.options.Mode == "debug" {
+		g.options.HandleWrappers = g.options.HandleWrappers[1:]
 	}
 	if g.listener == nil {
 		listen, err := net.Listen("tcp", g.options.Address)
@@ -63,7 +66,9 @@ func (g *grpcServer) Init(options ...Option) {
 		grpc.MaxRecvMsgSize(g.getMaxMsgSize()),
 		grpc.MaxSendMsgSize(g.getMaxMsgSize()),
 	}
+	if g.options.Mode == "release" {
 
+	}
 	it := UnaryServer(g.options.HandleWrappers...)
 	gopts = append(gopts, it)
 	gopts = append(gopts, g.options.GrpcOpts...)
@@ -75,7 +80,7 @@ func (g *grpcServer) Registry(reg registry.Registry, servers ...registry.Server)
 
 	if g.options.Name == "" {
 		log.Logger.Panicln("service name cannot be empty")
-		return errors.New("service name cannot be empty\"")
+		return errors.New("service name cannot be empty")
 	}
 	ip, _ := utils.GetIntranetIp()
 	endpoint := strings.Replace(g.options.Address, "[::]", ip.String(), 1)
@@ -85,6 +90,7 @@ func (g *grpcServer) Registry(reg registry.Registry, servers ...registry.Server)
 		Version:  g.options.Version,
 		Node:     utils.GetUuidV3(reg.GetPrefix()),
 		Endpoint: endpoint,
+		Namespace: g.options.Namespace,
 	}
 	for _, server := range servers {
 		server(&ser)
@@ -92,24 +98,20 @@ func (g *grpcServer) Registry(reg registry.Registry, servers ...registry.Server)
 	return reg.Registry(&ser)
 }
 
-func (g *grpcServer) Server() interface{} {
+func (g *grpcServer) Server() *grpc.Server {
 	return g.srv
 }
 
 func (g *grpcServer) Run() error {
-
 	go func() {
 		if err := g.srv.Serve(g.listener); err != nil {
 			log.Logger.Errorf("[share] Server [grpc] error:%s \n", err)
 			os.Exit(0)
 		}
-
 	}()
 	fmt.Printf("[share] Server [grpc] Listening on %s \n", g.listener.Addr().String())
 	ch := make(chan os.Signal, 1)
-
 	signal.Notify(ch, Shutdown()...)
-
 	select {
 	// wait on kill signal
 	case <-ch:

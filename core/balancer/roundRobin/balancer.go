@@ -28,7 +28,6 @@ func (*roundRobinPickerBuilder) Build(info base.PickerBuildInfo) balancer.V2Pick
 		//value := val.Address.Attributes.Value("weight")
 		scs = append(scs, thisBalancer.SubConn{
 			SubConn: sc,
-			//Weight:  value.(int8),
 		})
 	}
 	return &roundRobinPickerPicker{subConns: scs}

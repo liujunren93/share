@@ -14,12 +14,16 @@ import (
 
 func main() {
 
+
 	newJaeger, _, _ := openTrace.NewJaeger("client", "127.0.0.1:6831")
 	opentracing.SetGlobalTracer(newJaeger)
 	r,_ := etcd.NewRegistry(registry.WithAddrs("127.0.0.1:2379"))
-	newClient := client.NewClient(client.WithRegistry(r),client.WithBalancer(roundrobin.Name))
+	newClient := client.NewClient(client.WithRegistry(r),client.WithBalancer(roundrobin.Name),client.WithNamespace("go.micro.srv"))
 
-	conn, _ := newClient.Client("app")
+	conn, err := newClient.Client("account")
+	if err != nil {
+		panic(err)
+	}
 	for {
 		fmt.Scanln()
 		mathClient := proto.NewHelloWorldClient(conn)
@@ -28,5 +32,8 @@ func main() {
 		})
 		fmt.Println(add, err)
 	}
+
 }
+
+
 

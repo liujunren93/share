@@ -7,7 +7,7 @@ import (
 
 const DirectScheme = "dns"
 
-func BuildDirectTarget(serverName string) string {
+func BuildDirectTarget(namespace, srvName string) string {
 
-	return fmt.Sprintf("%s:///%s", endpoint.Name, serverName)
+	return fmt.Sprintf("%s:///%s/%s", endpoint.Name,namespace, srvName)
 }

@@ -11,7 +11,6 @@ import (
 	"github.com/liujunren93/share/server"
 	"github.com/liujunren93/share_utils/wrapper/openTrace"
 	"github.com/opentracing/opentracing-go"
-	"google.golang.org/grpc"
 )
 
 type hello struct {
@@ -33,7 +32,8 @@ func main() {
 	newJaeger, _, _ := openTrace.NewJaeger("app", "127.0.0.1:6831")
 	opentracing.SetGlobalTracer(newJaeger)
 	grpcServer := server.NewGrpcServer(
-		server.WithName("go.micro.share.service.account"),
+		server.WithNamespace("go.micro.srv"),
+		server.WithName("account"),
 		//server.WithAddress("127.0.0.1:2222"),
 		server.WithHdlrWrappers(validator.NewHandlerWrapper(),
 			opentrace.ServerGrpcWrap(newJaeger),
@@ -45,6 +45,6 @@ func main() {
 	}
 
 	grpcServer.Registry(r, registry.WithWeight(*weight))
-	proto.RegisterHelloWorldServer(grpcServer.Server().(*grpc.Server), new(hello))
+	proto.RegisterHelloWorldServer(grpcServer.Server(), new(hello))
 	grpcServer.Run()
 }
