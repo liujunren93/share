@@ -22,12 +22,14 @@ func NewClient(opts ...option) *Client {
 
 }
 
+//AddOptions
 func (c *Client) AddOptions(opts ...option) {
 	for _, o := range opts {
 		o(c.options)
 	}
 }
 
+//Client
 func (c *Client) Client(serverName string) (*grpc.ClientConn, error) {
 
 	opts := c.options.grpcOpts
