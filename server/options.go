@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"google.golang.org/grpc"
-	"strings"
 )
 
 type address struct {
@@ -29,8 +28,8 @@ var defaultOptions = Options{
 
 func WithName(name string) Option {
 	return func(options *Options) {
-
-		options.Name = strings.Replace(name, ".", "/", -1)
+		options.Name = name
+		//options.Name = strings.Replace(name, ".", "/", -1)
 	}
 }
 

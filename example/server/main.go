@@ -33,7 +33,7 @@ func main() {
 	newJaeger, _, _ := openTrace.NewJaeger("app", "127.0.0.1:6831")
 	opentracing.SetGlobalTracer(newJaeger)
 	grpcServer := server.NewGrpcServer(
-		server.WithName("app"),
+		server.WithName("go.micro.share.service.account"),
 		//server.WithAddress("127.0.0.1:2222"),
 		server.WithHdlrWrappers(validator.NewHandlerWrapper(),
 			opentrace.ServerGrpcWrap(newJaeger),

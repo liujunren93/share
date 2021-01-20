@@ -91,7 +91,9 @@ func (e *etcdRegistry) GetService(serverName string) ([]*registry.Service, error
 	}
 	var serviceList []*registry.Service
 	for _, r := range serviceMap {
-		serviceList = append(serviceList, r)
+		if r.Name==serverName {
+			serviceList = append(serviceList, r)
+		}
 	}
 	e.serverList.Store(serverName, serviceList)
 	return serviceList, nil
