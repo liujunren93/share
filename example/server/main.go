@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"github.com/liujunren93/share/core/registry"
 	"github.com/liujunren93/share/core/registry/etcd"
 	"github.com/liujunren93/share/example/proto"
@@ -23,7 +22,9 @@ func (h hello) Say(ctx context.Context, req *proto.Req) (*proto.Res, error) {
 	res.Msg = req.Name + ":hello world1"
 	return &res, nil
 }
+
 var weight *int
+
 func init() {
 	weight = flag.Int("w", 10, "")
 	flag.Parse()
@@ -42,7 +43,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(weight)
+
 	grpcServer.Registry(r, registry.WithWeight(*weight))
 	proto.RegisterHelloWorldServer(grpcServer.Server().(*grpc.Server), new(hello))
 	grpcServer.Run()

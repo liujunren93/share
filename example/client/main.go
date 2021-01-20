@@ -23,7 +23,6 @@ func main() {
 	for {
 		fmt.Scanln()
 		mathClient := proto.NewHelloWorldClient(conn)
-
 		add, err := mathClient.Say(context.TODO(), &proto.Req{
 			Name: "adsa",
 		})

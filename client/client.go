@@ -31,9 +31,7 @@ func (c *Client) AddOptions(opts ...option) {
 
 //Client
 func (c *Client) Client(serverName string) (*grpc.ClientConn, error) {
-
 	opts := c.options.grpcOpts
 	opts = append(opts, grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"loadBalancingPolicy":"%s"}`, c.options.balancer)))
-
 	return grpc.Dial(BuildDirectTarget(serverName), opts...)
 }
