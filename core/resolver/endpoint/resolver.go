@@ -22,9 +22,7 @@ func (e *endpointBuilder) Build(target resolver.Target, cc resolver.ClientConn, 
 	if err != nil {
 		return nil, err
 	}
-
 	up := func(serviceList []*registry.Service) {
-
 		for _, s := range serviceList {
 			values := new(attributes.Attributes).WithValues("weight", s.Weight)
 			address = append(address, resolver.Address{Addr: s.Endpoint, Attributes: values})
