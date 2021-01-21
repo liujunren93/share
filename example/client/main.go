@@ -13,8 +13,6 @@ import (
 )
 
 func main() {
-
-
 	newJaeger, _, _ := openTrace.NewJaeger("client", "127.0.0.1:6831")
 	opentracing.SetGlobalTracer(newJaeger)
 	r,_ := etcd.NewRegistry(registry.WithAddrs("127.0.0.1:2379"))
@@ -22,7 +20,7 @@ func main() {
 
 	conn, err := newClient.Client("account")
 	if err != nil {
-		panic(err)
+		//panic(err)
 	}
 	for {
 		fmt.Scanln()
@@ -32,7 +30,6 @@ func main() {
 		})
 		fmt.Println(add, err)
 	}
-
 }
 
 

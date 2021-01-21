@@ -2,7 +2,6 @@ package endpoint
 
 import (
 	"context"
-	"errors"
 	"github.com/liujunren93/share/core/registry"
 	"google.golang.org/grpc/attributes"
 	"google.golang.org/grpc/resolver"
@@ -18,18 +17,14 @@ func init() {
 type endpointBuilder struct{}
 
 func (e *endpointBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
-
 	var address []resolver.Address
-
 	service, err := registry.RegistryInstance.GetService(target.Endpoint)
-
 	if err != nil {
 		return nil, err
 	}
-	if len(service) == 0 {
-		return nil, errors.New("service not found")
-	}
+
 	up := func(serviceList []*registry.Service) {
+
 		for _, s := range serviceList {
 			values := new(attributes.Attributes).WithValues("weight", s.Weight)
 			address = append(address, resolver.Address{Addr: s.Endpoint, Attributes: values})
@@ -39,8 +34,9 @@ func (e *endpointBuilder) Build(target resolver.Target, cc resolver.ClientConn, 
 		})
 	}
 	go registry.RegistryInstance.Watch(target.Endpoint, context.TODO(), up)
-	up(service)
-
+	if len(service)!=0 {
+		up(service)
+	}
 	return &shareResolver{}, nil
 }
 
