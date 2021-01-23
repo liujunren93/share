@@ -22,13 +22,13 @@ var (
 	DefaultMaxMsgSize = 1024 * 1024 * 4
 )
 
-type grpcServer struct {
+type GrpcServer struct {
 	srv      *grpc.Server
 	options  *Options
 	listener net.Listener
 }
 
-func (g *grpcServer) getMaxMsgSize() int {
+func (g *GrpcServer) getMaxMsgSize() int {
 	if g.options.Ctx == nil {
 		return DefaultMaxMsgSize
 	}
@@ -39,15 +39,15 @@ func (g *grpcServer) getMaxMsgSize() int {
 	return s
 }
 
-func NewGrpcServer(options ...Option) *grpcServer {
-	var s grpcServer
+func NewGrpcServer(options ...Option) *GrpcServer {
+	var s GrpcServer
 	s.options = &defaultOptions
 	s.init(options)
 	return &s
 
 }
 
-func (g *grpcServer) init(options []Option) {
+func (g *GrpcServer) init(options []Option) {
 	for _, o := range options {
 		o(g.options)
 	}
@@ -76,7 +76,7 @@ func (g *grpcServer) init(options []Option) {
 	g.srv = grpc.NewServer(gopts...)
 }
 
-func (g *grpcServer) Registry(reg registry.Registry, servers ...registry.Server) error {
+func (g *GrpcServer) Registry(reg registry.Registry, servers ...registry.Server) error {
 
 	if g.options.Name == "" {
 		log.Logger.Panicln("service name cannot be empty")
@@ -98,11 +98,11 @@ func (g *grpcServer) Registry(reg registry.Registry, servers ...registry.Server)
 	return reg.Registry(&ser)
 }
 
-func (g *grpcServer) Server() *grpc.Server {
+func (g *GrpcServer) Server() *grpc.Server {
 	return g.srv
 }
 
-func (g *grpcServer) Run() error {
+func (g *GrpcServer) Run() error {
 	go func() {
 		if err := g.srv.Serve(g.listener); err != nil {
 			log.Logger.Errorf("[share] Server [grpc] error:%s \n", err)
