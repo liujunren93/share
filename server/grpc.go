@@ -66,9 +66,7 @@ func (g *GrpcServer) init(options []Option) {
 		grpc.MaxRecvMsgSize(g.getMaxMsgSize()),
 		grpc.MaxSendMsgSize(g.getMaxMsgSize()),
 	}
-	if g.options.Mode == "release" {
 
-	}
 	it := UnaryServer(g.options.HandleWrappers...)
 	gopts = append(gopts, it)
 	gopts = append(gopts, g.options.GrpcOpts...)

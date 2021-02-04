@@ -110,10 +110,9 @@ func (e *etcdRegistry) Watch(serverName string, ctx context.Context, up func([]*
 	for response := range watch {
 		var serviceList []*registry.Service
 		load, ok := e.serverList.Load(serverName)
-		if ok {
+		if ok&&load!=nil {
 			serviceList = load.([]*registry.Service)
 		}
-
 		if response.Err() != nil {
 			log.Logger.Error(response.Err())
 			return
@@ -144,11 +143,13 @@ func (e *etcdRegistry) Watch(serverName string, ctx context.Context, up func([]*
 
 					if "node_"+service.Node == node[len(node)-1] {
 						serviceList = append(serviceList[:i], serviceList[i+1:]...)
+
 					}
 				}
 
 			}
 		}
+		e.serverList.Store(serverName,serviceList)
 		up(serviceList)
 	}
 }

@@ -17,12 +17,13 @@ func init() {
 type endpointBuilder struct{}
 
 func (e *endpointBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
-	var address []resolver.Address
+
 	service, err := registry.RegistryInstance.GetService(target.Endpoint)
 	if err != nil {
 		return nil, err
 	}
 	up := func(serviceList []*registry.Service) {
+		var address []resolver.Address
 		for _, s := range serviceList {
 			values := new(attributes.Attributes).WithValues("weight", s.Weight)
 			address = append(address, resolver.Address{Addr: s.Endpoint, Attributes: values})
