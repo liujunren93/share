@@ -58,32 +58,8 @@ func main() {
 	}
 
 	grpcServer.Registry(r, registry.WithWeight(*weight))
-	//app.RegisterAppServer(grpcServer.Server(), new(hello))
-	app.RegisterAppServer(grpcServer.Server(), new(appstr))
+	proto.RegisterHelloWorldServer(grpcServer.Server(), new(hello))
+
 	grpcServer.Run()
 }
 
-type appstr string
-
-func (a appstr) Create(ctx context.Context, req *app.CreateReq) (*app.DefaultRes, error) {
-	var res app.DefaultRes
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	res.Msg =   ":hello world"+strconv.FormatInt(r.Int63n(1000),10)
-	return &res, nil
-}
-
-func (a appstr) Update(ctx context.Context, req *app.UpdateReq) (*app.DefaultRes, error) {
-	panic("implement me")
-}
-
-func (a appstr) List(ctx context.Context, req *app.AppListReq) (*app.AppListRes, error) {
-	panic("implement me")
-}
-
-func (a appstr) Info(ctx context.Context, req *app.AppInfoReq) (*app.AppInfoRes, error) {
-	panic("implement me")
-}
-
-func (a appstr) Delete(ctx context.Context, req *app.DeleteReq) (*app.DefaultRes, error) {
-	panic("implement me")
-}
