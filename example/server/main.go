@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/liujunren93/share/core/registry"
 	"github.com/liujunren93/share/core/registry/etcd"
 	"github.com/liujunren93/share/example/proto"
@@ -35,6 +36,12 @@ func init() {
 	flag.Parse()
 }
 func main() {
+	if true {
+		go func() {
+			fmt.Println(111)
+		}()
+	}
+
 	newJaeger, _, _ := openTrace.NewJaeger("app", "127.0.0.1:6831")
 	opentracing.SetGlobalTracer(newJaeger)
 	grpcServer := server.NewGrpcServer(

@@ -14,9 +14,11 @@ import (
 )
 
 type etcdRegistry struct {
-	client     *clientv3.Client
-	options    *registry.Options
-	serverList sync.Map
+	client          *clientv3.Client
+	options         *registry.Options
+	serverList      sync.Map
+	monitors        sync.Map
+	serverNamespace string
 }
 
 func NewRegistry(options ...registry.Option) (*etcdRegistry, error) {
@@ -64,7 +66,7 @@ func (e *etcdRegistry) Registry(service *registry.Service) error {
 		return err
 	}
 	lease.KeepAlive(ctx, grant.ID)
-
+	e.serverNamespace=e.options.Prefix+service.Namespace
 	_, err = e.client.Put(ctx, RegisterPath(e.options.Prefix, service), encode(service), clientv3.WithLease(grant.ID))
 
 	fmt.Printf("[share] Registering on [etcd]:%s  \n", RegisterPath(e.options.Prefix, service))
@@ -92,7 +94,7 @@ func (e *etcdRegistry) GetService(serverName string) ([]*registry.Service, error
 	for _, kv := range get.Kvs {
 
 		r := decode(kv.Value)
-		if r.Namespace+"/"+r.Name==serverName {
+		if r.Namespace+"/"+r.Name == serverName {
 			serviceList = append(serviceList, r)
 		}
 
@@ -103,14 +105,22 @@ func (e *etcdRegistry) GetService(serverName string) ([]*registry.Service, error
 	return serviceList, nil
 }
 
-func (e *etcdRegistry) Watch(serverName string, ctx context.Context, up func([]*registry.Service)) {
+//RegistryMonitor 注册监视器
+func (e *etcdRegistry) RegistryMonitor(serverName string, f func([]*registry.Service)) {
+
+	if _, loaded := e.monitors.LoadOrStore(serverName, f); !loaded {
+		go e.Watch(serverName, context.TODO())
+	}
+
+}
+
+func (e *etcdRegistry) Watch(serverName string, ctx context.Context) {
 
 	watch := e.client.Watch(ctx, GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithPrevKV())
-
 	for response := range watch {
 		var serviceList []*registry.Service
 		load, ok := e.serverList.Load(serverName)
-		if ok&&load!=nil {
+		if ok && load != nil {
 			serviceList = load.([]*registry.Service)
 		}
 		if response.Err() != nil {
@@ -143,14 +153,17 @@ func (e *etcdRegistry) Watch(serverName string, ctx context.Context, up func([]*
 
 					if "node_"+service.Node == node[len(node)-1] {
 						serviceList = append(serviceList[:i], serviceList[i+1:]...)
-
 					}
 				}
 
 			}
 		}
-		e.serverList.Store(serverName,serviceList)
-		up(serviceList)
+		e.serverList.Store(serverName, serviceList)
+		if value, ok := e.monitors.Load(serverName); ok {
+			if f, ok := value.(func([]*registry.Service)); ok {
+				f(serviceList)
+			}
+		}
 	}
 }
 

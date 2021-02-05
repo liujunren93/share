@@ -9,8 +9,9 @@ var RegistryInstance Registry
 type Registry interface {
 	Registry(*Service) error
 	GetService(serverName string) ([]*Service, error)
-	Watch(serverName string, ctx context.Context, f func([]*Service))
+	Watch(serverName string, ctx context.Context)
 	GetPrefix() string
+	RegistryMonitor(serverName string, f func([]*Service))
 }
 
 type Service struct {

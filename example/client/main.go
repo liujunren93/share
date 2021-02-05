@@ -11,6 +11,7 @@ import (
 	"github.com/liujunren93/share/plugins/metadata"
 	"github.com/liujunren93/share_utils/wrapper/openTrace"
 	"github.com/opentracing/opentracing-go"
+	"runtime"
 )
 
 func main() {
@@ -21,12 +22,14 @@ func main() {
 	newClient := client.NewClient(client.WithRegistry(r), client.WithBalancer(roundRobin.Name), client.WithNamespace("go.micro.srv"),
 		client.WithCallWrappers(metadata.ClientValueCallWrap("aa", "BB")),
 	)
-	conn, err := newClient.Client("app")
-	if err != nil {
-		panic(err)
-	}
+
 	for {
+		conn, err := newClient.Client("app")
+		if err != nil {
+			panic(err)
+		}
 		fmt.Scanln()
+		fmt.Println(runtime.NumGoroutine())
 		mathClient := app.NewAppClient(conn)
 		add, err := mathClient.Create(context.TODO(), &app.CreateReq{
 			Data:                 nil,

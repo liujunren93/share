@@ -1,7 +1,6 @@
 package endpoint
 
 import (
-	"context"
 	"github.com/liujunren93/share/core/registry"
 	"google.golang.org/grpc/attributes"
 	"google.golang.org/grpc/resolver"
@@ -32,8 +31,9 @@ func (e *endpointBuilder) Build(target resolver.Target, cc resolver.ClientConn, 
 			Addresses: address,
 		})
 	}
-	go registry.RegistryInstance.Watch(target.Endpoint, context.TODO(), up)
-	if len(service)!=0 {
+
+	registry.RegistryInstance.RegistryMonitor(target.Endpoint, up)
+	if len(service) != 0 {
 		up(service)
 	}
 	return &shareResolver{}, nil
