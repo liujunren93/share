@@ -149,13 +149,12 @@ func (e *etcdRegistry) Watch(serverName string, ctx context.Context) {
 				}
 
 			case clientv3.EventTypeDelete:
-				for i, service := range serviceList {
-
-					if "node_"+service.Node == node[len(node)-1] {
+				for i := 0; i < len(serviceList); i++ {
+					if "node_"+serviceList[i].Node == node[len(node)-1] {
 						serviceList = append(serviceList[:i], serviceList[i+1:]...)
+						i--
 					}
 				}
-
 			}
 		}
 		e.serverList.Store(serverName, serviceList)

@@ -8,7 +8,6 @@ import (
 	"github.com/liujunren93/share/core/registry"
 	"github.com/liujunren93/share/core/registry/etcd"
 	"github.com/liujunren93/share/example/proto"
-	"github.com/liujunren93/share/example/proto/app"
 	"github.com/liujunren93/share/plugins/metadata"
 	"github.com/liujunren93/share_utils/wrapper/openTrace"
 	"github.com/opentracing/opentracing-go"
