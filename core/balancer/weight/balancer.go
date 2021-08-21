@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-const Name = "weight"
+const Name = "share_weight"
 
 func newBuilder() balancer.Builder {
 	return base.NewBalancerBuilderV2(Name, &weightPickerBuilder{}, base.Config{HealthCheck: false})

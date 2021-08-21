@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-const Name = "round_robin"
+const Name = "share_round_robin"
 
 func newBuilder() balancer.Builder {
 	return base.NewBalancerBuilderV2(Name, &roundRobinPickerBuilder{}, base.Config{HealthCheck: false})
@@ -22,7 +22,6 @@ type roundRobinPickerBuilder struct {
 }
 
 func (*roundRobinPickerBuilder) Build(info base.PickerBuildInfo) balancer.V2Picker {
-
 	var scs []thisBalancer.SubConn
 	for sc, _ := range info.ReadySCs {
 		//value := val.Address.Attributes.Value("weight")
@@ -40,7 +39,6 @@ type roundRobinPickerPicker struct {
 }
 
 func (p *roundRobinPickerPicker) Pick(balancer.PickInfo) (balancer.PickResult, error) {
-
 	p.mu.Lock()
 	sc := p.subConns[p.next]
 	p.next = (p.next + 1) % len(p.subConns)

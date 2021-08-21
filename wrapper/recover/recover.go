@@ -10,7 +10,7 @@ type Recover struct {
 
 }
 
-func NewHandlerWrapper() grpc.UnaryServerInterceptor {
+func NewServerWrapper() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		defer func() {
 			if err:=recover();err!=nil {

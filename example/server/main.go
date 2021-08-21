@@ -8,8 +8,8 @@ import (
 	"github.com/liujunren93/share/core/registry/etcd"
 	"github.com/liujunren93/share/example/proto"
 
-	"github.com/liujunren93/share/plugins/opentrace"
-	"github.com/liujunren93/share/plugins/validator"
+	"github.com/liujunren93/share/wrapper/opentrace"
+	"github.com/liujunren93/share/wrapper/validator"
 	"github.com/liujunren93/share/server"
 	"github.com/liujunren93/share_utils/wrapper/openTrace"
 	"github.com/opentracing/opentracing-go"
@@ -44,7 +44,7 @@ func main() {
 		server.WithName("test"),
 		//server.WithAddress("127.0.0.1:2222"),
 		server.WithHdlrWrappers(validator.NewHandlerWrapper(),
-			opentrace.ServerGrpcWrap(newJaeger),
+			opentrace.NewServerWrapper(newJaeger),
 		),
 	)
 	r, err := etcd.NewRegistry(registry.WithAddrs("127.0.0.1:2379"))

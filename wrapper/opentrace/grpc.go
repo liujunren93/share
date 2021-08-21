@@ -29,7 +29,7 @@ func (m MDCarrier) Set(key, val string) {
 	m.MD[key] = append(m.MD[key], val)
 }
 
-func ServerGrpcWrap(ot opentracing.Tracer) grpc.UnaryServerInterceptor {
+func NewServerWrapper(ot opentracing.Tracer) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
@@ -61,7 +61,7 @@ func ServerGrpcWrap(ot opentracing.Tracer) grpc.UnaryServerInterceptor {
 	}
 }
 
-func ClientGrpcCallWrap(ot opentracing.Tracer) grpc.UnaryClientInterceptor {
+func NewClientWrapper(ot opentracing.Tracer) grpc.UnaryClientInterceptor {
 	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 		//一个RPC调用的服务端的span，和RPC服务客户端的span构成ChildOf关系
 		var parentCtx opentracing.SpanContext

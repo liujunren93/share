@@ -2,7 +2,7 @@ package server
 
 import (
 	"context"
-	recover2 "github.com/liujunren93/share/plugins/recover"
+	recover2 "github.com/liujunren93/share/wrapper/recover"
 	"google.golang.org/grpc"
 	"strings"
 )
@@ -26,7 +26,7 @@ var defaultOptions = Options{
 	Version:        "latest",
 	Mode:           "release",
 	Ctx:            context.TODO(),
-	HandleWrappers: []grpc.UnaryServerInterceptor{recover2.NewHandlerWrapper()},
+	HandleWrappers: []grpc.UnaryServerInterceptor{recover2.NewServerWrapper()},
 }
 
 //mode release,debug
