@@ -18,6 +18,5 @@ func NewHandlerWrapper() grpc.UnaryServerInterceptor {
 			}
 		}()
 		return handler(ctx, req)
-
 	}
 }

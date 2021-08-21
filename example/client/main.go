@@ -18,14 +18,15 @@ func main() {
 
 	newJaeger, _, _ := openTrace.NewJaeger("client", "127.0.0.1:6831")
 	opentracing.SetGlobalTracer(newJaeger)
-	r, _ := etcd.NewRegistry(registry.WithAddrs("127.0.0.1:2379"))
-	newClient := client.NewClient(client.WithRegistry(r), client.WithBalancer(roundRobin.Name), client.WithNamespace("go.micro.srv"),
+	r, _ := etcd.NewRegistry(registry.WithAddrs("http://127.0.0.1:2379","http://127.0.0.1:3379","http://127.0.0.1:4379"))
+	newClient := client.NewClient(client.WithRegistry(r), client.WithBalancer(roundRobin.Name), client.WithNamespace("aaaaaa"),
 		client.WithCallWrappers(metadata.ClientValueCallWrap("aa", "BB")),
 	)
 	conn, err := newClient.Client("test")
 	if err != nil {
 		panic(err)
 	}
+
 	for {
 
 		fmt.Scanln()

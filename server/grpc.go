@@ -59,6 +59,10 @@ func (g *GrpcServer) init(options []Option) {
 		if err != nil {
 			log.Logger.Panic(err)
 		}
+		//m := cmux.New(listen)
+		//grpcL := m.MatchWithWriters(
+		//	cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"),
+		//)
 		g.options.Address = listen.Addr().String()
 		g.listener = listen
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/liujunren93/share/core/registry"
 	"github.com/liujunren93/share/core/registry/etcd"
 	"github.com/liujunren93/share/example/proto"
-	"github.com/liujunren93/share/example/proto/app"
+
 	"github.com/liujunren93/share/plugins/opentrace"
 	"github.com/liujunren93/share/plugins/validator"
 	"github.com/liujunren93/share/server"
@@ -23,7 +23,7 @@ type hello struct {
 
 func (h hello) Say(ctx context.Context, req *proto.Req) (*proto.Res, error) {
 	var res proto.Res
-
+fmt.Println(1111)
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	res.Msg = req.Name + ":hello world"+strconv.FormatInt(r.Int63n(1000),10)
 	return &res, nil
@@ -36,17 +36,12 @@ func init() {
 	flag.Parse()
 }
 func main() {
-	if true {
-		go func() {
-			fmt.Println(111)
-		}()
-	}
 
-	newJaeger, _, _ := openTrace.NewJaeger("app", "127.0.0.1:6831")
+	newJaeger, _, _ := openTrace.NewJaeger("test", "127.0.0.1:6831")
 	opentracing.SetGlobalTracer(newJaeger)
 	grpcServer := server.NewGrpcServer(
-		server.WithNamespace("go.micro.srv"),
-		server.WithName("app"),
+		server.WithNamespace("aaaaaa"),
+		server.WithName("test"),
 		//server.WithAddress("127.0.0.1:2222"),
 		server.WithHdlrWrappers(validator.NewHandlerWrapper(),
 			opentrace.ServerGrpcWrap(newJaeger),

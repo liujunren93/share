@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-
 type Options struct {
 	Name           string
 	Address        string
@@ -22,11 +21,11 @@ type Options struct {
 type Option func(*Options)
 
 var defaultOptions = Options{
-	Address:   ":0",
-	Namespace: "go/micro/srv",
-	Version:   "latest",
-	Mode:      "release",
-	Ctx:       context.TODO(),
+	Address:        ":0",
+	Namespace:      "go/share/srv",
+	Version:        "latest",
+	Mode:           "release",
+	Ctx:            context.TODO(),
 	HandleWrappers: []grpc.UnaryServerInterceptor{recover2.NewHandlerWrapper()},
 }
 
@@ -39,7 +38,6 @@ func WithMode(mode string) Option {
 
 func WithName(name string) Option {
 	return func(options *Options) {
-
 		options.Name = strings.Replace(name, ".", "/", -1)
 	}
 }

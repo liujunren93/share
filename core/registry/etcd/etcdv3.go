@@ -66,7 +66,7 @@ func (e *etcdRegistry) Registry(service *registry.Service) error {
 		return err
 	}
 	lease.KeepAlive(ctx, grant.ID)
-	e.serverNamespace=e.options.Prefix+service.Namespace
+	e.serverNamespace = e.options.Prefix + service.Namespace
 	_, err = e.client.Put(ctx, RegisterPath(e.options.Prefix, service), encode(service), clientv3.WithLease(grant.ID))
 
 	fmt.Printf("[share] Registering on [etcd]:%s  \n", RegisterPath(e.options.Prefix, service))
@@ -82,7 +82,7 @@ func (e *etcdRegistry) GetService(serverName string) ([]*registry.Service, error
 	}
 	ctx := e.options.GetServerCtx
 	if ctx == nil {
-		ctx, _ = context.WithTimeout(context.TODO(), time.Second*2)
+		ctx, _ = context.WithTimeout(context.TODO(), time.Second*200000)
 	}
 
 	get, err := e.client.Get(ctx, GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithSerializable())
