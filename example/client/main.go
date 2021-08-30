@@ -11,16 +11,17 @@ import (
 	"github.com/liujunren93/share/wrapper/metadata"
 	"github.com/liujunren93/share_utils/wrapper/openTrace"
 	"github.com/opentracing/opentracing-go"
+	opentrace2 "github.com/liujunren93/share/wrapper/opentrace"
 	"runtime"
 )
 
 func main() {
 
-	newJaeger, _, _ := openTrace.NewJaeger("client", "127.0.0.1:6831")
+	newJaeger, _, _ := openTrace.NewJaeger("client", "MacBook-Pro.local:6831")
 	opentracing.SetGlobalTracer(newJaeger)
 	r, _ := etcd.NewRegistry(registry.WithAddrs("http://127.0.0.1:2379","http://127.0.0.1:3379","http://127.0.0.1:4379"))
 	newClient := client.NewClient(client.WithRegistry(r), client.WithBalancer(roundRobin.Name), client.WithNamespace("aaaaaa"),
-		client.WithCallWrappers(metadata.NewClientWrapper("aa", "BB")),
+		client.WithCallWrappers(metadata.NewClientWrapper("aa", "BB"),opentrace2.NewClientWrapper(newJaeger)),
 	)
 	conn, err := newClient.Client("test")
 	if err != nil {

@@ -37,7 +37,7 @@ func init() {
 }
 func main() {
 
-	newJaeger, _, _ := openTrace.NewJaeger("test", "127.0.0.1:6831")
+	newJaeger, _, _ := openTrace.NewJaeger("test", "MacBook-Pro.local:6831")
 	opentracing.SetGlobalTracer(newJaeger)
 	grpcServer := server.NewGrpcServer(
 		server.WithNamespace("aaaaaa"),
