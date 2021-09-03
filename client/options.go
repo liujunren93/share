@@ -63,7 +63,7 @@ func WithName(name string) option {
 //}
 func WithCallWrappers(ops ...grpc.UnaryClientInterceptor) option {
 	return func(o *options) {
-		o.callWrappers = ops
+		o.callWrappers = append(o.callWrappers, ops...)
 	}
 }
 
