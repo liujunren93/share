@@ -10,7 +10,7 @@ import (
 const Name = "share_round_robin"
 
 func newBuilder() balancer.Builder {
-	return base.NewBalancerBuilderV2(Name, &roundRobinPickerBuilder{}, base.Config{HealthCheck: false})
+	return base.NewBalancerBuilder(Name,&roundRobinPickerBuilder{}, base.Config{HealthCheck: false})
 }
 func init() {
 
@@ -21,7 +21,7 @@ func init() {
 type roundRobinPickerBuilder struct {
 }
 
-func (*roundRobinPickerBuilder) Build(info base.PickerBuildInfo) balancer.V2Picker {
+func (*roundRobinPickerBuilder) Build(info base.PickerBuildInfo) balancer.Picker {
 	var scs []thisBalancer.SubConn
 	for sc, _ := range info.ReadySCs {
 		//value := val.Address.Attributes.Value("weight")

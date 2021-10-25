@@ -12,7 +12,7 @@ import (
 const Name = "share_weight"
 
 func newBuilder() balancer.Builder {
-	return base.NewBalancerBuilderV2(Name, &weightPickerBuilder{}, base.Config{HealthCheck: false})
+	return base.NewBalancerBuilder(Name, &weightPickerBuilder{}, base.Config{HealthCheck: false})
 }
 func init() {
 
@@ -22,7 +22,7 @@ func init() {
 type weightPickerBuilder struct {
 }
 
-func (w *weightPickerBuilder) Build(info base.PickerBuildInfo) balancer.V2Picker {
+func (w *weightPickerBuilder) Build(info base.PickerBuildInfo) balancer.Picker {
 
 	var scs []thisBalancer.SubConn
 	for sc, val := range info.ReadySCs {

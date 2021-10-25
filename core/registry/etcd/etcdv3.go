@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/liujunren93/share/core/registry"
 	"github.com/liujunren93/share/log"
-	"go.etcd.io/etcd/clientv3"
+	"go.etcd.io/etcd/client/v3"
 	"strings"
 	"sync"
 	"time"
