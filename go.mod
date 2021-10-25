@@ -9,7 +9,6 @@ replace (
 )
 
 require (
-	github.com/coreos/etcd v3.3.25+incompatible // indirect
 	github.com/envoyproxy/protoc-gen-validate v0.6.1
 	github.com/golang/protobuf v1.5.2
 	github.com/liujunren93/share_utils v0.0.0-20210817150003-3ae17b275349
@@ -18,7 +17,13 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/soheilhy/cmux v0.1.5 // indirect
 	go.etcd.io/etcd v3.3.25+incompatible
-	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d // indirect
+	go.etcd.io/etcd/client/v3 v3.5.1 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
+	go.uber.org/multierr v1.7.0 // indirect
+	go.uber.org/zap v1.19.1 // indirect
+	golang.org/x/net v0.0.0-20211020060615-d418f374d309 // indirect
+	golang.org/x/sys v0.0.0-20211025112917-711f33c9992c // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/grpc v1.31.0
+	google.golang.org/genproto v0.0.0-20211021150943-2b146023228c // indirect
+	google.golang.org/grpc v1.40.0
 )
