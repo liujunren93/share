@@ -13,7 +13,6 @@ func newBuilder() balancer.Builder {
 	return base.NewBalancerBuilder(Name,&roundRobinPickerBuilder{}, base.Config{HealthCheck: false})
 }
 func init() {
-
 	balancer.Register(newBuilder())
 }
 
