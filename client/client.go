@@ -36,9 +36,9 @@ func (c *Client) AddOptions(opts ...option) {
 }
 
 //Client
-func (c *Client) Client(serverName string) (*grpc.ClientConn, error) {
+func (c *Client) Client(serverName string) (grpc.ClientConnInterface, error) {
 	if load, ok := c.endpoints.Load(serverName); ok {
-		return load.(*grpc.ClientConn), nil
+		return load.(grpc.ClientConnInterface), nil
 	} else {
 		opts := []grpc.DialOption{grpc.WithInsecure()}
 
