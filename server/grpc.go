@@ -3,15 +3,17 @@ package server
 import (
 	"errors"
 	"fmt"
-	"github.com/liujunren93/share/core/registry"
-	"github.com/liujunren93/share/log"
-	"github.com/liujunren93/share/utils"
-	"google.golang.org/grpc"
 	"net"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
+
+	"github.com/liujunren93/share/core/registry"
+	"github.com/liujunren93/share/log"
+	"github.com/liujunren93/share/utils"
+	recover2 "github.com/liujunren93/share/wrapper/recover"
+	"google.golang.org/grpc"
 )
 
 type maxMsgSizeKey struct{}
@@ -51,8 +53,8 @@ func (g *GrpcServer) init(options []Option) {
 	for _, o := range options {
 		o(g.options)
 	}
-	if g.options.Mode == "debug" {
-		g.options.HandleWrappers = g.options.HandleWrappers[1:]
+	if g.options.Mode != "debug" {
+		g.options.HandleWrappers = append(g.options.HandleWrappers, recover2.NewServerWrapper())
 	}
 	if g.listener == nil {
 		listen, err := net.Listen("tcp", g.options.Address)
@@ -88,10 +90,10 @@ func (g *GrpcServer) Registry(reg registry.Registry, servers ...registry.Server)
 	endpoint := strings.Replace(g.options.Address, "[::]", ip.String(), 1)
 
 	ser := registry.Service{
-		Name:     g.options.Name,
-		Version:  g.options.Version,
-		Node:     utils.GetUuidV3(reg.GetPrefix()),
-		Endpoint: endpoint,
+		Name:      g.options.Name,
+		Version:   g.options.Version,
+		Node:      utils.GetUuidV3(reg.GetPrefix()),
+		Endpoint:  endpoint,
 		Namespace: g.options.Namespace,
 	}
 	for _, server := range servers {

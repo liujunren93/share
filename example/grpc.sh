@@ -14,4 +14,4 @@
 # script is for demonstration purpose.
 #
 proto=./proto/*.proto
-protoc -I./proto --go_out=plugins=grpc:.  --validate_out="lang=go":.  $proto
+protoc -I./proto --go_out=plugins=grpc:.   $proto

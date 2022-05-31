@@ -2,78 +2,90 @@ package client
 
 import (
 	"context"
-	"github.com/liujunren93/share/core/balancer/roundRobin"
-	"github.com/liujunren93/share/core/registry"
-	"google.golang.org/grpc"
 	"strings"
 	"time"
+
+	"github.com/liujunren93/share/core/balancer/roundRobin"
+	"github.com/liujunren93/share/core/registry"
+	"github.com/liujunren93/share/wrapper"
+	"google.golang.org/grpc"
 )
 
 type options struct {
 	name string
 	serverOpt
-	callWrappers []grpc.UnaryClientInterceptor
-	ctx          context.Context
-	registry     registry.Registry
-	balancer     string
-	timeout      time.Duration // 请求超时
+	callWrappers    map[string]grpc.UnaryClientInterceptor
+	ctx             context.Context
+	registry        registry.Registry
+	balancer        string
+	timeout         time.Duration // 请求超时
+	buildTargetFunc BuildTargetFunc
+	grpcOpts        []grpc.DialOption
 }
 type serverOpt struct {
 	namespace string
 }
 
 var DefaultOptions = options{
-
-	ctx: context.TODO(),
-	balancer:roundRobin.Name,
+	ctx:      context.TODO(),
+	balancer: roundRobin.Name,
 	serverOpt: serverOpt{
 		namespace: "go/micro/srv",
 	},
-	timeout: time.Second * 3,
+	timeout:      time.Second * 3,
+	callWrappers: make(map[string]grpc.UnaryClientInterceptor),
 }
 
-func WithTimeout(timeout time.Duration) option {
+func WithTimeout(timeout time.Duration) OptionFunc {
 	return func(o *options) {
 		o.timeout = timeout
 	}
 }
+func WithGrpcDialOption(opts ...grpc.DialOption) OptionFunc {
+	return func(o *options) {
+		o.grpcOpts = append(o.grpcOpts, opts...)
+	}
+}
 
-func WithNamespace(namespace string) option {
+func WithBuildTargetFunc(buildTargetFunc BuildTargetFunc) OptionFunc {
+	return func(o *options) {
+		o.buildTargetFunc = buildTargetFunc
+	}
+}
+
+func WithNamespace(namespace string) OptionFunc {
 	return func(o *options) {
 		o.namespace = strings.Replace(namespace, ".", "/", -1)
 	}
 }
 
-func WithBalancer(name string) option {
+func WithBalancer(name string) OptionFunc {
 	return func(o *options) {
 		o.balancer = name
 	}
 }
-func WithName(name string) option {
+func WithName(name string) OptionFunc {
 	return func(o *options) {
 		o.name = name
 	}
 }
 
-//func WithGrpcOpts(ops ...grpc.DialOption) option {
-//	ops = append(ops, grpc.WithInsecure())
-//	return func(o *options) {
-//		o.grpcOpts = ops
-//	}
-//}
-func WithCallWrappers(ops ...grpc.UnaryClientInterceptor) option {
+func WithCallWrappers(wraps ...wrapper.CallWrapper) OptionFunc {
 	return func(o *options) {
-		o.callWrappers = append(o.callWrappers, ops...)
+		for _, wrap := range wraps {
+			interceptor, name := wrap()
+			o.callWrappers[name] = interceptor
+		}
 	}
 }
 
-func WithCtx(ctx context.Context) option {
+func WithCtx(ctx context.Context) OptionFunc {
 	return func(o *options) {
 		o.ctx = ctx
 	}
 }
 
-func WithRegistry(r registry.Registry) option {
+func WithRegistry(r registry.Registry) OptionFunc {
 
 	return func(o *options) {
 		o.registry = r

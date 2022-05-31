@@ -2,9 +2,9 @@ package server
 
 import (
 	"context"
-	recover2 "github.com/liujunren93/share/wrapper/recover"
-	"google.golang.org/grpc"
 	"strings"
+
+	"google.golang.org/grpc"
 )
 
 type Options struct {
@@ -12,7 +12,7 @@ type Options struct {
 	Address        string
 	Namespace      string
 	Version        string
-	Mode           string
+	Mode           string //debubg
 	Ctx            context.Context
 	GrpcOpts       []grpc.ServerOption
 	HandleWrappers []grpc.UnaryServerInterceptor
@@ -26,7 +26,7 @@ var defaultOptions = Options{
 	Version:        "latest",
 	Mode:           "release",
 	Ctx:            context.TODO(),
-	HandleWrappers: []grpc.UnaryServerInterceptor{recover2.NewServerWrapper()},
+	HandleWrappers: []grpc.UnaryServerInterceptor{},
 }
 
 //mode release,debug
