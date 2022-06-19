@@ -102,7 +102,7 @@ func (g *GrpcServer) Registry(reg registry.Registry, servers ...registry.Server)
 	return reg.Registry(&ser)
 }
 
-func (g *GrpcServer) Server() *grpc.Server {
+func (g *GrpcServer) Server() grpc.ServiceRegistrar {
 	return g.srv
 }
 

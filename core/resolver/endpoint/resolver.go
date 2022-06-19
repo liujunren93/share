@@ -24,7 +24,7 @@ func (e *endpointBuilder) Build(target resolver.Target, cc resolver.ClientConn, 
 	up := func(serviceList []*registry.Service) {
 		var address []resolver.Address
 		for _, s := range serviceList {
-			values := new(attributes.Attributes).WithValues("weight", s.Weight)
+			values := attributes.New("weight", s.Weight)
 			address = append(address, resolver.Address{Addr: s.Endpoint, Attributes: values})
 		}
 		cc.UpdateState(resolver.State{
