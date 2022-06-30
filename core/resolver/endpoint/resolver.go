@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc/resolver"
 )
 
-const Name = "shareEndpoint"
+const Name = "shareresolver"
 
 func init() {
 

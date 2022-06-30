@@ -14,6 +14,7 @@ type Client struct {
 	options   *options
 	endpoints sync.Map
 }
+type BuildTargetFunc func(args ...string) string
 
 func NewClient(opts ...OptionFunc) *Client {
 	var c Client
@@ -31,8 +32,6 @@ func (c *Client) AddOptions(opts ...OptionFunc) {
 		o(c.options)
 	}
 }
-
-type BuildTargetFunc func(namespace string) string
 
 func (c *Client) buildGrpcOptions() []grpc.DialOption {
 	opts := c.options.grpcOpts
@@ -60,8 +59,7 @@ func (c *Client) Client(serverName string) (grpc.ClientConnInterface, error) {
 			if serverName == "" {
 				return nil, errors.New("serverName can not be empty")
 			}
-
-			target = BuildDirectTarget(c.options.namespace, serverName)
+			target = defaultDirectTarget(c.options.namespace, serverName)
 		} else {
 			target = c.options.buildTargetFunc(c.options.namespace)
 		}

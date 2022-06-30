@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/liujunren93/share/core/registry"
-	"github.com/liujunren93/share/log"
-	"go.etcd.io/etcd/client/v3"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/liujunren93/share/core/registry"
+	"github.com/liujunren93/share/log"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 type etcdRegistry struct {
@@ -68,7 +69,9 @@ func (e *etcdRegistry) Registry(service *registry.Service) error {
 	lease.KeepAlive(ctx, grant.ID)
 	e.serverNamespace = e.options.Prefix + service.Namespace
 	_, err = e.client.Put(ctx, RegisterPath(e.options.Prefix, service), encode(service), clientv3.WithLease(grant.ID))
-
+	if err != nil {
+		return err
+	}
 	fmt.Printf("[share] Registering on [etcd]:%s  \n", RegisterPath(e.options.Prefix, service))
 	fmt.Printf("[share] Registering name: %s  \n", service.Name)
 	return err

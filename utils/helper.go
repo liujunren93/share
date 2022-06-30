@@ -1,38 +1,45 @@
 package utils
 
 import (
-	uuid "github.com/satori/go.uuid"
 	"math/rand"
 	"net"
 	"time"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 func GetUuidV3(name string) string {
-	v1,_ := uuid.NewV4()
+	v1, _ := uuid.NewV4()
 	variant := uuid.NewV3(v1, name)
 	//all := strings.ReplaceAll(variant.String(), "-", "")
 	return variant.String()
 }
 
-
-func GetIntranetIp() (net.IP,error){
-	addrs, err := net.InterfaceAddrs()
-
+func GetIntranetIp() (net.IP, error) {
+	conn, err := net.Dial("udp", "8.0.0.1:8")
 	if err != nil {
-		return nil,err
-		
+		return nil, err
 	}
+	defer conn.Close()
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	return localAddr.IP, nil
+	// addrs, err := net.InterfaceAddrs()
 
-	for _, address := range addrs {
-		// 检查ip地址判断是否回环地址
-		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				return ipnet.IP,nil
-			}
+	// if err != nil {
+	// 	return nil,err
 
-		}
-	}
-	return nil, nil
+	// }
+
+	// for _, address := range addrs {
+	// 	// 检查ip地址判断是否回环地址
+	// 	if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+	// 		if ipnet.IP.To4() != nil {
+	// 			return ipnet.IP,nil
+	// 		}
+
+	// 	}
+	// }
+	// return nil, nil
 }
 
 func RandString(length int) string {
@@ -50,4 +57,3 @@ func RandInt(max int) int {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return r.Intn(max)
 }
-

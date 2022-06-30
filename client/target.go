@@ -6,7 +6,7 @@ import (
 	"github.com/liujunren93/share/core/resolver/endpoint"
 )
 
-func BuildDirectTarget(namespace, srvName string) string {
-
-	return fmt.Sprintf("%s:///%s/%s", endpoint.Name, namespace, srvName)
+// namespace, srvName string
+func defaultDirectTarget(args ...string) string {
+	return fmt.Sprintf("%s:///%s/%s", endpoint.Name, args[0], args[1])
 }

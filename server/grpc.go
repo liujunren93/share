@@ -43,7 +43,8 @@ func (g *GrpcServer) getMaxMsgSize() int {
 
 func NewGrpcServer(options ...Option) *GrpcServer {
 	var s GrpcServer
-	s.options = &defaultOptions
+	opt := defaultOptions
+	s.options = &opt
 	s.init(options)
 	return &s
 
@@ -65,7 +66,9 @@ func (g *GrpcServer) init(options []Option) {
 		//grpcL := m.MatchWithWriters(
 		//	cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"),
 		//)
+
 		g.options.Address = listen.Addr().String()
+		fmt.Println(listen.Addr().String())
 		g.listener = listen
 	}
 	gopts := []grpc.ServerOption{
@@ -86,7 +89,10 @@ func (g *GrpcServer) Registry(reg registry.Registry, servers ...registry.Server)
 		log.Logger.Panicln("service name cannot be empty")
 		return errors.New("service name cannot be empty")
 	}
-	ip, _ := utils.GetIntranetIp()
+	ip, err := utils.GetIntranetIp()
+	if err != nil {
+		return err
+	}
 	endpoint := strings.Replace(g.options.Address, "[::]", ip.String(), 1)
 
 	ser := registry.Service{
