@@ -14,4 +14,5 @@
 # script is for demonstration purpose.
 #
 proto=./proto/*.proto
-protoc -I./proto --go_out=plugins=grpc:.   $proto
+
+ protoc -I.  --go_out=:.  --go-grpc_out=require_unimplemented_servers=false:.    $proto

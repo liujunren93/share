@@ -66,7 +66,15 @@ func (e *etcdRegistry) Registry(service *registry.Service) error {
 	if err != nil {
 		return err
 	}
-	lease.KeepAlive(ctx, grant.ID)
+	ch, err := lease.KeepAlive(ctx, grant.ID)
+	if err != nil {
+		return err
+	}
+	go func() {
+		for i := range ch {
+			fmt.Println(i)
+		}
+	}()
 	e.serverNamespace = e.options.Prefix + service.Namespace
 	_, err = e.client.Put(ctx, RegisterPath(e.options.Prefix, service), encode(service), clientv3.WithLease(grant.ID))
 	if err != nil {
