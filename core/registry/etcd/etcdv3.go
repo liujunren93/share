@@ -71,8 +71,8 @@ func (e *etcdRegistry) Registry(service *registry.Service) error {
 		return err
 	}
 	go func() {
-		for i := range ch {
-			fmt.Println(i)
+		for range ch {
+
 		}
 	}()
 	e.serverNamespace = e.options.Prefix + service.Namespace
