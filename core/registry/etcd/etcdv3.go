@@ -15,11 +15,10 @@ import (
 )
 
 type etcdRegistry struct {
-	client          *clientv3.Client
-	options         *registry.Options
-	serverList      sync.Map
-	monitors        sync.Map
-	serverNamespace string
+	client     *clientv3.Client
+	options    *registry.Options
+	serverList sync.Map
+	monitors   sync.Map
 }
 
 func NewRegistry(options ...registry.Option) (*etcdRegistry, error) {
@@ -75,7 +74,6 @@ func (e *etcdRegistry) Registry(service *registry.Service) error {
 
 		}
 	}()
-	e.serverNamespace = e.options.Prefix + service.Namespace
 	_, err = e.client.Put(ctx, RegisterPath(e.options.Prefix, service), encode(service), clientv3.WithLease(grant.ID))
 	if err != nil {
 		return err

@@ -30,7 +30,7 @@ var DefaultOptions = options{
 	ctx:      context.TODO(),
 	balancer: roundRobin.Name,
 	serverOpt: serverOpt{
-		namespace: "go/share/srv",
+		namespace: "share/srv",
 	},
 	timeout:      time.Second * 3,
 	callWrappers: make(map[string]grpc.UnaryClientInterceptor),

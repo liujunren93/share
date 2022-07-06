@@ -22,7 +22,7 @@ type Option func(*Options)
 
 var defaultOptions = Options{
 	Address:        ":0",
-	Namespace:      "go/share/srv",
+	Namespace:      "share/srv",
 	Version:        "latest",
 	Mode:           "release",
 	Ctx:            context.TODO(),
