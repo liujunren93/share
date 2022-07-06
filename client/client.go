@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sync"
@@ -12,7 +13,7 @@ type OptionFunc func(*options)
 
 type Client struct {
 	options   *options
-	endpoints sync.Map
+	clientMap sync.Map
 }
 type BuildTargetFunc func(args ...string) string
 
@@ -49,7 +50,7 @@ func (c *Client) buildGrpcOptions() []grpc.DialOption {
 
 //Client
 func (c *Client) Client(serverName string) (grpc.ClientConnInterface, error) {
-	if load, ok := c.endpoints.Load(serverName); ok {
+	if load, ok := c.clientMap.Load(serverName); ok {
 		return load.(grpc.ClientConnInterface), nil
 	} else {
 		opts := c.buildGrpcOptions()
@@ -67,8 +68,22 @@ func (c *Client) Client(serverName string) (grpc.ClientConnInterface, error) {
 		if dial, err := grpc.Dial(target, opts...); err != nil {
 			return nil, err
 		} else {
-			c.endpoints.Store(serverName, dial)
+			c.clientMap.Store(serverName, dial)
 			return dial, nil
 		}
 	}
+}
+
+var unaryStreamDesc = &grpc.StreamDesc{ServerStreams: false, ClientStreams: false}
+
+func (c *Client) Invoke(ctx context.Context, method string, req, reply interface{}, cc grpc.ClientConnInterface, opts ...grpc.CallOption) error {
+	// cs, err := cc.NewStream(ctx, unaryStreamDesc, method, opts...)
+	// if err != nil {
+	// 	return err
+	// }
+	// if err := cs.SendMsg(req); err != nil {
+	// 	return err
+	// }
+	// return cs.RecvMsg(reply)
+	return cc.Invoke(ctx, method, req, reply, opts...)
 }

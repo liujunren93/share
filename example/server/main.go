@@ -42,7 +42,7 @@ func main() {
 		//server.WithAddress("127.0.0.1:2222"),
 		server.WithHdlrWrappers(validator.NewHandlerWrapper()),
 	)
-	r, err := etcd.NewRegistry(registry.WithAddrs("http://192.168.48.134:2379", "http://192.168.48.134:3379", "http://192.168.48.134:4379"))
+	r, err := etcd.NewRegistry(registry.WithAddrs("http://node1:2379", "http://node1:3379", "http://node1:4379"))
 	if err != nil {
 		panic(err)
 	}
