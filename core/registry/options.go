@@ -6,11 +6,11 @@ import (
 )
 
 type Options struct {
-	Addrs        []string
-	Prefix       string
-	RegistryCtx  context.Context
-	GetServerCtx context.Context
-	TLSConfig    *tls.Config
+	Addrs     []string
+	Prefix    string
+	ctx       context.Context
+	Lease     int64
+	TLSConfig *tls.Config
 }
 
 type WatchOptions struct {
@@ -22,11 +22,17 @@ var DefaultOptions = Options{
 	Addrs:     []string{"127.0.0.1:2379"},
 	Prefix:    "registry",
 	TLSConfig: nil,
+	Lease:     5,
 }
 
 func WithAddrs(addrs ...string) Option {
 	return func(options *Options) {
 		options.Addrs = addrs
+	}
+}
+func WithLease(lease int64) Option {
+	return func(options *Options) {
+		options.Lease = lease
 	}
 }
 
@@ -36,14 +42,9 @@ func WithPrefix(prefix string) Option {
 	}
 }
 
-func WithRegistryCtx(ctx context.Context) Option {
+func WithCtx(ctx context.Context) Option {
 	return func(options *Options) {
-		options.RegistryCtx = ctx
-	}
-}
-func WithGetServerCtx(ctx context.Context) Option {
-	return func(options *Options) {
-		options.GetServerCtx = ctx
+		options.ctx = ctx
 	}
 }
 

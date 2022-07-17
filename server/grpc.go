@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -8,6 +9,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/liujunren93/share/core/registry"
 	"github.com/liujunren93/share/log"
@@ -28,6 +30,7 @@ type GrpcServer struct {
 	srv      *grpc.Server
 	options  *Options
 	listener net.Listener
+	StopList []func()
 }
 
 func (g *GrpcServer) getMaxMsgSize() int {
@@ -105,7 +108,15 @@ func (g *GrpcServer) Registry(reg registry.Registry, servers ...registry.Server)
 	for _, server := range servers {
 		server(&ser)
 	}
-	return reg.Registry(&ser)
+	ctx, _ := context.WithTimeout(context.TODO(), time.Second*3)
+	err = reg.Registry(ctx, &ser)
+	if err != nil {
+		return err
+	}
+	g.StopList = append(g.StopList, func() {
+		reg.UnRegistry(&ser)
+	})
+	return nil
 }
 
 func (g *GrpcServer) Server() grpc.ServiceRegistrar {
@@ -120,19 +131,26 @@ func (g *GrpcServer) Run() error {
 		}
 	}()
 	fmt.Printf("[share] Server [grpc] Listening on %s \n", g.listener.Addr().String())
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, Shutdown()...)
-	select {
-	// wait on kill signal
-	case <-ch:
-		// wait on context cancel
-
-	}
+	g.WatchSignal()
 	return nil
 }
 
-func Shutdown() []os.Signal {
-	return []os.Signal{
+func (g *GrpcServer) WatchSignal() {
+	ch := make(chan os.Signal, 1)
+	signals := []os.Signal{
 		syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGKILL,
 	}
+	signal.Notify(ch, signals...)
+	select {
+	// wait on kill signal
+	case <-ch:
+		g.srv.Stop()
+		for _, stop := range g.StopList {
+			stop()
+		}
+		fmt.Printf("[share] Server [grpc] stop:%s", g.options.Name)
+		// wait on context cancel
+
+	}
+
 }

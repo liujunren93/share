@@ -7,11 +7,12 @@ import (
 var RegistryInstance Registry
 
 type Registry interface {
-	Registry(*Service) error
-	GetService(serverName string) ([]*Service, error)
-	Watch(serverName string, ctx context.Context)
+	Registry(context.Context, *Service) error
+	GetService(ctx context.Context, serverName string) ([]*Service, error)
+	Watch(ctx context.Context, serverName string)
 	GetPrefix() string
 	RegistryMonitor(serverName string, f func([]*Service))
+	UnRegistry(*Service) error
 }
 
 type Service struct {

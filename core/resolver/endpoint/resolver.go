@@ -1,6 +1,9 @@
 package endpoint
 
 import (
+	"context"
+	"time"
+
 	"github.com/liujunren93/share/core/registry"
 	"google.golang.org/grpc/attributes"
 	"google.golang.org/grpc/resolver"
@@ -16,8 +19,8 @@ func init() {
 type endpointBuilder struct{}
 
 func (e *endpointBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
-
-	service, err := registry.RegistryInstance.GetService(target.Endpoint)
+	ctx, _ := context.WithTimeout(context.TODO(), time.Second*3)
+	service, err := registry.RegistryInstance.GetService(ctx, target.Endpoint)
 	if err != nil {
 		return nil, err
 	}

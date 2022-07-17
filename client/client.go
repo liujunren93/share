@@ -77,14 +77,5 @@ func (c *Client) Client(serverName string) (grpc.ClientConnInterface, error) {
 var unaryStreamDesc = &grpc.StreamDesc{ServerStreams: false, ClientStreams: false}
 
 func (c *Client) Invoke(ctx context.Context, method string, req, reply interface{}, cc grpc.ClientConnInterface, opts ...grpc.CallOption) error {
-	// cs, err := cc.NewStream(ctx, unaryStreamDesc, method, opts...)
-	// if err != nil {
-	// 	return err
-	// }
-	// if err := cs.SendMsg(req); err != nil {
-	// 	return err
-	// }
-	// return cs.RecvMsg(reply)
-
 	return cc.Invoke(ctx, method, req, reply, opts...)
 }

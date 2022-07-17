@@ -3,7 +3,6 @@ package etcd
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -53,19 +52,15 @@ func (e *etcdRegistry) init(options ...registry.Option) error {
 	return nil
 }
 
-func (e *etcdRegistry) Registry(service *registry.Service) error {
+func (e *etcdRegistry) Registry(ctx context.Context, service *registry.Service) error {
 
 	lease := clientv3.NewLease(e.client)
 
-	ctx := e.options.RegistryCtx
-	if ctx == nil {
-		ctx = context.TODO()
-	}
-	grant, err := lease.Grant(ctx, 5)
+	grant, err := lease.Grant(context.TODO(), e.options.Lease)
 	if err != nil {
 		return err
 	}
-	ch, err := lease.KeepAlive(ctx, grant.ID)
+	ch, err := lease.KeepAlive(context.TODO(), grant.ID)
 	if err != nil {
 		return err
 	}
@@ -83,19 +78,26 @@ func (e *etcdRegistry) Registry(service *registry.Service) error {
 	return err
 }
 
-func (e *etcdRegistry) GetService(serverName string) ([]*registry.Service, error) {
+func (e *etcdRegistry) UnRegistry(service *registry.Service) error {
+	fmt.Printf("[share] UnRegistry:%s", service.Name)
+	ctx, _ := context.WithTimeout(context.TODO(), time.Second*3)
+	_, err := e.client.Delete(ctx, RegisterPath(e.options.Prefix, service))
+	if err != nil {
+		log.Logger.Error("[share.registry]UnRegistry service:%s,err:%v", service.Name, err)
+	}
+	return err
+}
+
+func (e *etcdRegistry) GetService(ctx context.Context, serverName string) ([]*registry.Service, error) {
 
 	load, ok := e.serverList.Load(serverName)
 	if ok {
 		return load.([]*registry.Service), nil
 	}
-	ctx := e.options.GetServerCtx
-	if ctx == nil {
-		ctx, _ = context.WithTimeout(context.TODO(), time.Second*200000)
-	}
 
 	get, err := e.client.Get(ctx, GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithSerializable())
 	if err != nil {
+		log.Logger.Error("[share.registry]GetService service:%s,err:%v", serverName, err)
 		return nil, err
 	}
 
@@ -118,12 +120,12 @@ func (e *etcdRegistry) GetService(serverName string) ([]*registry.Service, error
 func (e *etcdRegistry) RegistryMonitor(serverName string, f func([]*registry.Service)) {
 
 	if _, loaded := e.monitors.LoadOrStore(serverName, f); !loaded {
-		go e.Watch(serverName, context.TODO())
+		go e.Watch(context.TODO(), serverName)
 	}
 
 }
 
-func (e *etcdRegistry) Watch(serverName string, ctx context.Context) {
+func (e *etcdRegistry) Watch(ctx context.Context, serverName string) {
 
 	watch := e.client.Watch(ctx, GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithPrevKV())
 	for response := range watch {
@@ -133,11 +135,12 @@ func (e *etcdRegistry) Watch(serverName string, ctx context.Context) {
 			serviceList = load.([]*registry.Service)
 		}
 		if response.Err() != nil {
-			log.Logger.Error(response.Err())
+			log.Logger.Error("[share.registry]Watch err:%v", response.Err())
+
 			return
 		}
 		if response.Canceled {
-			log.Logger.Error(errors.New("could not get next"))
+			log.Logger.Error("[share.registry]Watch Canceled")
 			return
 		}
 		for _, event := range response.Events {
@@ -146,7 +149,6 @@ func (e *etcdRegistry) Watch(serverName string, ctx context.Context) {
 			case clientv3.EventTypePut:
 				service := decode(event.Kv.Value)
 				if event.IsCreate() {
-
 					serviceList = append(serviceList, service)
 				}
 				if event.IsModify() {

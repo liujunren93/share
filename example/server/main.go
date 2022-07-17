@@ -39,7 +39,7 @@ func main() {
 	grpcServer := server.NewGrpcServer(
 		server.WithNamespace("aaaaaa"),
 		server.WithName("test"),
-		//server.WithAddress("127.0.0.1:2222"),
+
 		server.WithHdlrWrappers(validator.NewHandlerWrapper()),
 	)
 	r, err := etcd.NewRegistry(registry.WithAddrs("http://node1:2379", "http://node1:3379", "http://node1:4379"))
