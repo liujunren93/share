@@ -144,6 +144,7 @@ func (g *GrpcServer) WatchSignal() {
 	select {
 	// wait on kill signal
 	case <-ch:
+		fmt.Println("g.srv.Stop()")
 		g.srv.Stop()
 		for _, stop := range g.StopList {
 			stop()

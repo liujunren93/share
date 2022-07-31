@@ -12,7 +12,7 @@ type Options struct {
 	Address        string
 	Namespace      string
 	Version        string
-	Mode           string //debubg
+	Mode           string //debubg product
 	Ctx            context.Context
 	GrpcOpts       []grpc.ServerOption
 	HandleWrappers []grpc.UnaryServerInterceptor
@@ -24,7 +24,7 @@ var defaultOptions = Options{
 	Address:        ":0",
 	Namespace:      "share/srv",
 	Version:        "latest",
-	Mode:           "release",
+	Mode:           "product",
 	Ctx:            context.TODO(),
 	HandleWrappers: []grpc.UnaryServerInterceptor{},
 }

@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 
 	"github.com/liujunren93/share/core/registry"
 	"github.com/liujunren93/share/core/registry/etcd"
@@ -22,7 +21,15 @@ type hello struct {
 
 func (h hello) Say(ctx context.Context, req *proto.Req) (*proto.Res, error) {
 	var res proto.Res
-	fmt.Println(1111)
+
+	// for {
+	// 	fmt.Println("[share]1")
+	// 	<-ctx.Done()
+
+	// 	fmt.Println("[share]")
+	// 	time.Sleep(1 * time.Second)
+
+	// }
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	res.Msg = req.Name + ":hello world" + strconv.FormatInt(r.Int63n(1000), 10)
 	return &res, nil

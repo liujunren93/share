@@ -19,7 +19,7 @@ func main() {
 
 	r, err := etcd.NewRegistry(registry.WithAddrs("http://node1:2379", "http://node1:3379", "http://node1:4379"))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	newClient := client.NewClient(client.WithRegistry(r), client.WithBalancer(roundRobin.Name), client.WithNamespace("aaaaaa"), client.WithGrpcDialOption(grpc.WithTransportCredentials(insecure.NewCredentials())), client.WithCallWrappers(timeout.NewClientWrapper(time.Second)))
 	conn, err := newClient.Client("test")
