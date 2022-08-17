@@ -1,21 +1,21 @@
 package roundRobin
 
 import (
+	"sync"
+
 	thisBalancer "github.com/liujunren93/share/core/balancer"
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/balancer/base"
-	"sync"
 )
 
 const Name = "share_round_robin"
 
 func newBuilder() balancer.Builder {
-	return base.NewBalancerBuilder(Name,&roundRobinPickerBuilder{}, base.Config{HealthCheck: false})
+	return base.NewBalancerBuilder(Name, &roundRobinPickerBuilder{}, base.Config{HealthCheck: false})
 }
 func init() {
 	balancer.Register(newBuilder())
 }
-
 
 type roundRobinPickerBuilder struct {
 }
@@ -38,6 +38,9 @@ type roundRobinPickerPicker struct {
 }
 
 func (p *roundRobinPickerPicker) Pick(balancer.PickInfo) (balancer.PickResult, error) {
+	if len(p.subConns) == 0 {
+		return balancer.PickResult{}, nil
+	}
 	p.mu.Lock()
 	sc := p.subConns[p.next]
 	p.next = (p.next + 1) % len(p.subConns)

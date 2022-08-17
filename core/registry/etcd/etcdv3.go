@@ -94,7 +94,7 @@ func (e *etcdRegistry) GetService(ctx context.Context, serverName string) ([]*re
 	if ok {
 		return load.([]*registry.Service), nil
 	}
-
+	// context.TODO()
 	get, err := e.client.Get(ctx, GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithSerializable())
 	if err != nil {
 		log.Logger.Error("[share.registry]GetService service:%s,err:%v", serverName, err)
