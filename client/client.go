@@ -12,8 +12,9 @@ import (
 type OptionFunc func(*options)
 
 type Client struct {
-	options   *options
-	clientMap sync.Map
+	options     *options
+	clientMap   sync.Map
+	callOptions []grpc.CallOption
 }
 type BuildTargetFunc func(args ...string) string
 
@@ -32,6 +33,11 @@ func (c *Client) AddOptions(opts ...OptionFunc) {
 	for _, o := range opts {
 		o(c.options)
 	}
+}
+
+//AddOptions
+func (c *Client) AddCallOptions(opts ...grpc.CallOption) {
+	c.callOptions = append(c.callOptions, opts...)
 }
 
 func (c *Client) buildGrpcOptions() []grpc.DialOption {
@@ -74,8 +80,8 @@ func (c *Client) Client(serverName string) (grpc.ClientConnInterface, error) {
 	}
 }
 
-var unaryStreamDesc = &grpc.StreamDesc{ServerStreams: false, ClientStreams: false}
-
 func (c *Client) Invoke(ctx context.Context, method string, req, reply interface{}, cc grpc.ClientConnInterface, opts ...grpc.CallOption) error {
+	// opts = append(opts, grpc.CallContentSubtype(codes.Name))
+	opts = append(opts, c.callOptions...)
 	return cc.Invoke(ctx, method, req, reply, opts...)
 }

@@ -61,7 +61,7 @@ func (g *GrpcServer) init(options []Option) {
 		g.options.HandleWrappers = append(g.options.HandleWrappers, recover2.NewServerWrapper())
 	}
 	if g.listener == nil {
-		listen, err := net.Listen("tcp", g.options.Address)
+		listen, err := net.Listen("tcp", g.options.Listen)
 		if err != nil {
 			log.Logger.Panic(err)
 		}
@@ -70,7 +70,7 @@ func (g *GrpcServer) init(options []Option) {
 		//	cmux.HTTP2MatchHeaderFieldSendSettings("content-type", "application/grpc"),
 		//)
 
-		g.options.Address = listen.Addr().String()
+		g.options.Listen = listen.Addr().String()
 		fmt.Println(listen.Addr().String())
 		g.listener = listen
 	}
@@ -96,7 +96,7 @@ func (g *GrpcServer) Registry(reg registry.Registry, servers ...registry.Server)
 	if err != nil {
 		return err
 	}
-	endpoint := strings.Replace(g.options.Address, "[::]", ip.String(), 1)
+	endpoint := strings.Replace(g.options.Listen, "[::]", ip.String(), 1)
 
 	ser := registry.Service{
 		Name:      g.options.Name,
