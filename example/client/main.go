@@ -29,7 +29,6 @@ func main() {
 	}
 	newClient.AddCallOptions(grpc.CallContentSubtype(json.Name))
 	for {
-
 		fmt.Scanln()
 		var res = new(proto.Res)
 		fmt.Println(222)
