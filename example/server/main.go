@@ -39,7 +39,7 @@ func main() {
 	grpcServer := server.NewGrpcServer(
 		server.WithNamespace("aaaaaa"),
 		server.WithName("test"),
-		server.WithListen("127.0.0.1:9090"),
+		server.WithListenAddr("127.0.0.1:9090"),
 
 		server.WithHdlrWrappers(validator.NewHandlerWrapper()),
 		server.WithGrpcOpts(grpc.CustomCodec(json.Codes{})),

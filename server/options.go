@@ -9,7 +9,7 @@ import (
 
 type Options struct {
 	Name           string
-	Listen         string
+	ListenAddr     string
 	Namespace      string
 	Version        string
 	Mode           string //debubg product
@@ -21,7 +21,7 @@ type Options struct {
 type Option func(*Options)
 
 var defaultOptions = Options{
-	Listen:         ":0",
+	ListenAddr:     ":0",
 	Namespace:      "share/srv",
 	Version:        "latest",
 	Mode:           "product",
@@ -42,9 +42,9 @@ func WithName(name string) Option {
 	}
 }
 
-func WithListen(addr string) Option {
+func WithListenAddr(addr string) Option {
 	return func(options *Options) {
-		options.Listen = addr
+		options.ListenAddr = addr
 	}
 }
 

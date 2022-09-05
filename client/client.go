@@ -45,7 +45,7 @@ func (c *Client) buildGrpcOptions() []grpc.DialOption {
 	opts = append(opts, grpc.WithTimeout(c.options.timeout))
 
 	if c.options.balancer != "" {
-		opts = append(opts, grpc.WithCodec(&Code{}), grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"loadBalancingPolicy":"%s"}`, c.options.balancer)))
+		opts = append(opts, grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"loadBalancingPolicy":"%s"}`, c.options.balancer)))
 	}
 	for _, v := range c.options.callWrappers {
 		opts = append(opts, UnaryClient(v))
