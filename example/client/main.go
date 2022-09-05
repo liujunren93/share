@@ -23,13 +23,17 @@ func main() {
 		return "127.0.0.1:9090"
 
 	}), client.WithBalancer(roundRobin.Name), client.WithTimeout(time.Hour), client.WithNamespace("aaaaaa"), client.WithGrpcDialOption(grpc.WithTransportCredentials(insecure.NewCredentials())))
+
 	conn, err := newClient.Client("test")
+
 	if err != nil {
 		panic(err)
 	}
 	newClient.AddCallOptions(grpc.CallContentSubtype(json.Name))
 	for {
+
 		fmt.Scanln()
+
 		var res = new(proto.Res)
 		fmt.Println(222)
 		// var data interface{}
