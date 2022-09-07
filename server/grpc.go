@@ -71,7 +71,6 @@ func (g *GrpcServer) init(options []Option) {
 		//)
 
 		g.options.ListenAddr = listen.Addr().String()
-		fmt.Println(listen.Addr().String())
 		g.listener = listen
 	}
 	gopts := []grpc.ServerOption{

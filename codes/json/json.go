@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc/encoding"
 )
 
-const Name = "json"
+const Name = "share_json"
 
 type Codes struct{}
 
