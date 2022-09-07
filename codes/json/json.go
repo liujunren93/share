@@ -17,12 +17,19 @@ func init() {
 //c codes
 
 func (Codes) Marshal(v interface{}) ([]byte, error) {
+	if v == nil {
+		return []byte(""), nil
+	}
 	if vv, ok := v.([]byte); ok {
 		return vv, nil
 	}
+
 	return js.Marshal(v)
 }
 func (Codes) Unmarshal(data []byte, v interface{}) error {
+	if len(data) == 0 {
+		return nil
+	}
 	return js.Unmarshal(data, v)
 }
 func (Codes) Name() string {
