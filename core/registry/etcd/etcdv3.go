@@ -83,7 +83,7 @@ func (e *etcdRegistry) UnRegistry(service *registry.Service) error {
 	ctx, _ := context.WithTimeout(context.TODO(), time.Second*3)
 	_, err := e.client.Delete(ctx, RegisterPath(e.options.Prefix, service))
 	if err != nil {
-		log.Logger.Error("[share.registry]UnRegistry service:%s,err:%v", service.Name, err)
+		log.Logger.Errorf("[share.registry]UnRegistry service:%s,err:%v", service.Name, err)
 	}
 	return err
 }
@@ -97,8 +97,11 @@ func (e *etcdRegistry) GetService(ctx context.Context, serverName string) ([]*re
 	// context.TODO()
 	get, err := e.client.Get(ctx, GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithSerializable())
 	if err != nil {
-		log.Logger.Error("[share.registry]GetService service:%s,err:%v", serverName, err)
+		log.Logger.Errorf("[share.registry]GetService service:%s,key:%s,err:%v", serverName, GetServicePath(e.options.Prefix, serverName), err)
 		return nil, err
+	}
+	if len(get.Kvs) == 0 {
+		return nil, fmt.Errorf("[share.registry]server:%s was not found", GetServicePath(e.options.Prefix, serverName))
 	}
 
 	var serviceList []*registry.Service
@@ -135,7 +138,7 @@ func (e *etcdRegistry) Watch(ctx context.Context, serverName string) {
 			serviceList = load.([]*registry.Service)
 		}
 		if response.Err() != nil {
-			log.Logger.Error("[share.registry]Watch err:%v", response.Err())
+			log.Logger.Errorf("[share.registry]Watch err:%v", response.Err())
 
 			return
 		}
@@ -168,7 +171,12 @@ func (e *etcdRegistry) Watch(ctx context.Context, serverName string) {
 				}
 			}
 		}
-		e.serverList.Store(serverName, serviceList)
+		if len(serviceList) == 0 {
+			e.serverList.Delete(serverName)
+		} else {
+			e.serverList.Store(serverName, serviceList)
+		}
+
 		if value, ok := e.monitors.Load(serverName); ok {
 			if f, ok := value.(func([]*registry.Service)); ok {
 				f(serviceList)
