@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc/encoding"
 )
 
-const Name = "json"
+const Name = "share_json"
 
 type Codes struct{}
 
@@ -23,6 +23,9 @@ func (Codes) Marshal(v interface{}) ([]byte, error) {
 	return js.Marshal(v)
 }
 func (Codes) Unmarshal(data []byte, v interface{}) error {
+	if len(data) == 0 {
+		return nil
+	}
 	return js.Unmarshal(data, v)
 }
 func (Codes) Name() string {
