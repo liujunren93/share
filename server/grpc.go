@@ -85,7 +85,7 @@ func (g *GrpcServer) init(options []Option) {
 	g.srv = grpc.NewServer(gopts...)
 }
 
-func (g *GrpcServer) Registry(reg registry.Registry, servers ...registry.Server) error {
+func (g *GrpcServer) Registry(reg registry.Registry, serOpts ...registry.ServerOpt) error {
 
 	if g.options.Name == "" {
 		log.Logger.Panicln("service name cannot be empty")
@@ -104,8 +104,8 @@ func (g *GrpcServer) Registry(reg registry.Registry, servers ...registry.Server)
 		Endpoint:  endpoint,
 		Namespace: g.options.Namespace,
 	}
-	for _, server := range servers {
-		server(&ser)
+	for _, opt := range serOpts {
+		opt(&ser)
 	}
 	ctx, _ := context.WithTimeout(context.TODO(), time.Second*3)
 	err = reg.Registry(ctx, &ser)
