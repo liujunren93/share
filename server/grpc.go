@@ -30,7 +30,7 @@ type GrpcServer struct {
 	srv      *grpc.Server
 	options  *Options
 	listener net.Listener
-	StopList []func()
+	stopList []func()
 }
 
 func (g *GrpcServer) getMaxMsgSize() int {
@@ -112,7 +112,7 @@ func (g *GrpcServer) Registry(reg registry.Registry, servers ...registry.Server)
 	if err != nil {
 		return err
 	}
-	g.StopList = append(g.StopList, func() {
+	g.stopList = append(g.stopList, func() {
 		reg.UnRegistry(&ser)
 	})
 	return nil
@@ -143,9 +143,8 @@ func (g *GrpcServer) WatchSignal() {
 	select {
 	// wait on kill signal
 	case <-ch:
-		fmt.Println("g.srv.Stop()")
 		g.srv.Stop()
-		for _, stop := range g.StopList {
+		for _, stop := range g.stopList {
 			stop()
 		}
 		fmt.Printf("[share] Server [grpc] stop:%s", g.options.Name)
@@ -153,4 +152,8 @@ func (g *GrpcServer) WatchSignal() {
 
 	}
 
+}
+
+func (g *GrpcServer) RegistryStopFunc(f func()) {
+	g.stopList = append(g.stopList, f)
 }
