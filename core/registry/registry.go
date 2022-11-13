@@ -26,9 +26,9 @@ type Service struct {
 }
 
 type Option func(*Options)
-type Server func(*Service)
+type ServerOpt func(*Service)
 
-func WithWeight(weight int) Server {
+func WithWeight(weight int) ServerOpt {
 	return func(service *Service) {
 		service.Weight = weight
 	}
