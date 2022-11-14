@@ -44,7 +44,7 @@ func GetIntranetIp() (net.IP, error) {
 
 func RandString(length int) string {
 	baseStr := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r := rand.New(rand.NewSource(time.Now().UnixNano() + rand.Int63n(9999)))
 	var randStr []byte
 	buf := []byte(baseStr)
 	for i := 0; i < length; i++ {
@@ -54,6 +54,6 @@ func RandString(length int) string {
 }
 
 func RandInt(max int) int {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r := rand.New(rand.NewSource(time.Now().UnixNano() + rand.Int63n(9999)))
 	return r.Intn(max)
 }
