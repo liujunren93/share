@@ -57,3 +57,8 @@ func RandInt(max int) int {
 	r := rand.New(rand.NewSource(time.Now().UnixNano() + rand.Int63n(9999)))
 	return r.Intn(max)
 }
+
+func RandIntRange(min, max int) int {
+	r := rand.New(rand.NewSource(time.Now().UnixNano() + rand.Int63n(9999)))
+	return r.Intn(max-min) + min
+}
