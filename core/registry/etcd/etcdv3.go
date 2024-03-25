@@ -69,11 +69,11 @@ func (e *etcdRegistry) Registry(ctx context.Context, service *registry.Service) 
 
 		}
 	}()
-	_, err = e.client.Put(ctx, RegisterPath(e.options.Prefix, service), encode(service), clientv3.WithLease(grant.ID))
+	_, err = e.client.Put(ctx, registry.RegisterPath(e.options.Prefix, service), encode(service), clientv3.WithLease(grant.ID))
 	if err != nil {
 		return err
 	}
-	fmt.Printf("[share] Registering on [etcd]:%s  \n", RegisterPath(e.options.Prefix, service))
+	fmt.Printf("[share] Registering on [etcd]:%s  \n", registry.RegisterPath(e.options.Prefix, service))
 	fmt.Printf("[share] Registering name: %s  \n", service.Name)
 	return err
 }
@@ -81,7 +81,7 @@ func (e *etcdRegistry) Registry(ctx context.Context, service *registry.Service) 
 func (e *etcdRegistry) UnRegistry(service *registry.Service) error {
 	fmt.Printf("[share] UnRegistry:%s", service.Name)
 	ctx, _ := context.WithTimeout(context.TODO(), time.Second*3)
-	_, err := e.client.Delete(ctx, RegisterPath(e.options.Prefix, service))
+	_, err := e.client.Delete(ctx, registry.RegisterPath(e.options.Prefix, service))
 	if err != nil {
 		log.Logger.Errorf("[share.registry]UnRegistry service:%s,err:%v", service.Name, err)
 	}
@@ -95,13 +95,13 @@ func (e *etcdRegistry) GetService(ctx context.Context, serverName string) ([]*re
 		return load.([]*registry.Service), nil
 	}
 	// context.TODO()
-	get, err := e.client.Get(ctx, GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithSerializable())
+	get, err := e.client.Get(ctx, registry.GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithSerializable())
 	if err != nil {
-		log.Logger.Errorf("[share.registry]GetService service:%s,key:%s,err:%v", serverName, GetServicePath(e.options.Prefix, serverName), err)
+		log.Logger.Errorf("[share.registry]GetService service:%s,key:%s,err:%v", serverName, registry.GetServicePath(e.options.Prefix, serverName), err)
 		return nil, err
 	}
 	if len(get.Kvs) == 0 {
-		return nil, fmt.Errorf("[share.registry]server:%s was not found", GetServicePath(e.options.Prefix, serverName))
+		return nil, fmt.Errorf("[share.registry]server:%s was not found", registry.GetServicePath(e.options.Prefix, serverName))
 	}
 
 	var serviceList []*registry.Service
@@ -119,7 +119,7 @@ func (e *etcdRegistry) GetService(ctx context.Context, serverName string) ([]*re
 	return serviceList, nil
 }
 
-//RegistryMonitor 注册监视器
+// RegistryMonitor 注册监视器
 func (e *etcdRegistry) RegistryMonitor(serverName string, f func([]*registry.Service)) {
 
 	if _, loaded := e.monitors.LoadOrStore(serverName, f); !loaded {
@@ -128,9 +128,10 @@ func (e *etcdRegistry) RegistryMonitor(serverName string, f func([]*registry.Ser
 
 }
 
+// 监听变化
 func (e *etcdRegistry) Watch(ctx context.Context, serverName string) {
 
-	watch := e.client.Watch(ctx, GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithPrevKV())
+	watch := e.client.Watch(ctx, registry.GetServicePath(e.options.Prefix, serverName), clientv3.WithPrefix(), clientv3.WithPrevKV())
 	for response := range watch {
 		var serviceList []*registry.Service
 		load, ok := e.serverList.Load(serverName)
@@ -198,23 +199,15 @@ func (e *etcdRegistry) GetPrefix() string {
 	return e.options.Prefix
 }
 
-//encode 编码器
+// encode 编码器
 func encode(s *registry.Service) string {
 	b, _ := json.Marshal(s)
 	return string(b)
 }
 
-//decode 解码
+// decode 解码
 func decode(ds []byte) *registry.Service {
 	var s *registry.Service
 	json.Unmarshal(ds, &s)
 	return s
-}
-
-func RegisterPath(prefix string, srv *registry.Service) string {
-	return fmt.Sprintf("/%s/%s/%s/node_%s", prefix, srv.Namespace, srv.Name, srv.Node)
-}
-
-func GetServicePath(prefix, srvName string) string {
-	return fmt.Sprintf("/%s/%s", prefix, srvName)
 }

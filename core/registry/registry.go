@@ -2,6 +2,7 @@ package registry
 
 import (
 	"context"
+	"fmt"
 )
 
 var RegistryInstance Registry
@@ -32,4 +33,12 @@ func WithWeight(weight int) ServerOpt {
 	return func(service *Service) {
 		service.Weight = weight
 	}
+}
+
+func RegisterPath(prefix string, srv *Service) string {
+	return fmt.Sprintf("/%s/%s/%s/node_%s", prefix, srv.Namespace, srv.Name, srv.Node)
+}
+
+func GetServicePath(prefix, srvName string) string {
+	return fmt.Sprintf("/%s/%s", prefix, srvName)
 }

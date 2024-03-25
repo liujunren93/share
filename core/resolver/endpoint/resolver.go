@@ -20,7 +20,7 @@ type endpointBuilder struct{}
 
 func (e *endpointBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
 	ctx, _ := context.WithTimeout(context.TODO(), time.Second*3)
-	service, err := registry.RegistryInstance.GetService(ctx, target.Endpoint)
+	service, err := registry.RegistryInstance.GetService(ctx, target.URL.Path)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func (e *endpointBuilder) Build(target resolver.Target, cc resolver.ClientConn, 
 		})
 	}
 
-	registry.RegistryInstance.RegistryMonitor(target.Endpoint, up)
+	registry.RegistryInstance.RegistryMonitor(target.URL.Path, up)
 	if len(service) != 0 {
 		up(service)
 	}
